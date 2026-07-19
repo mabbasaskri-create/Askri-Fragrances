@@ -408,17 +408,6 @@
     }
 
     async function uploadImageToStorage(file) {
-      if (storage) {
-        try {
-          const ext = file.name.split('.').pop();
-          const fileName = 'products/' + Date.now() + '_' + Math.random().toString(36).substr(2, 6) + '.' + ext;
-          const ref = storage.ref(fileName);
-          await ref.put(file);
-          return await ref.getDownloadURL();
-        } catch(e) {
-          console.warn('Firebase Storage upload failed, using base64 fallback:', e);
-        }
-      }
       return await compressAndEncode(file);
     }
 
@@ -606,13 +595,13 @@
       const editId = document.getElementById('edit-product-id').value;
 
       if (selectedImageFile) {
-        showToast('Uploading image...');
+        showToast('Processing image...');
         try {
           image = await uploadImageToStorage(selectedImageFile);
         } catch(e) {
-          console.error('Image upload error:', e);
-          showToast('Image upload failed: ' + e.message);
-          return;
+          console.error('Image process error:', e);
+          showToast('Image processing failed, using default');
+          image = '';
         }
       }
 
