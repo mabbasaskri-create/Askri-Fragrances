@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Your Orders — Askri Fragrances</title>
+  <link rel="icon" href="images/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <style>
+    .orders-section{padding:60px 0;min-height:80vh}
+    .orders-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:16px}
+    .orders-header h1{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;color:#fff}
+    .orders-header .user-info{display:flex;align-items:center;gap:12px}
+    .orders-header .user-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#b8860b);display:flex;align-items:center;justify-content:center;color:#000;font-size:.9rem}
+    .orders-header .user-name{color:#ccc;font-size:.9rem}
+    .orders-header .user-email{color:#666;font-size:.78rem}
+    .orders-header .logout-btn{background:transparent;border:1px solid #333;color:#888;padding:8px 18px;border-radius:8px;font-size:.82rem;cursor:pointer;transition:all .25s}
+    .orders-header .logout-btn:hover{border-color:#c94b4b;color:#c94b4b}
+    .orders-empty{text-align:center;padding:80px 20px;color:#555}
+    .orders-empty i{font-size:3rem;color:#222;margin-bottom:20px}
+    .orders-empty h3{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:#777;font-weight:400;margin-bottom:10px}
+    .orders-empty p{color:#555;font-size:.88rem;margin-bottom:24px}
+    .order-card{background:#111;border:1px solid #1a1a1a;border-radius:12px;padding:24px;margin-bottom:16px}
+    .order-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+    .order-id{color:var(--gold);font-size:.85rem;font-weight:600}
+    .order-date{color:#555;font-size:.8rem}
+    .order-items{display:flex;gap:16px;flex-wrap:wrap}
+    .order-item{display:flex;gap:12px;align-items:center;background:#0a0a0a;border-radius:10px;padding:12px}
+    .order-item img{width:60px;height:60px;object-fit:cover;border-radius:8px}
+    .order-item-info h4{color:#fff;font-size:.88rem;font-weight:500}
+    .order-item-info p{color:#666;font-size:.78rem}
+    .order-item-info .item-price{color:var(--gold);font-weight:600;margin-top:4px}
+    .order-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid #1a1a1a;flex-wrap:wrap;gap:10px}
+    .order-total{color:#fff;font-size:1rem;font-weight:600}
+    .order-status{padding:5px 14px;border-radius:20px;font-size:.75rem;font-weight:600}
+    .order-status.delivered{background:rgba(76,175,80,.15);color:#4CAF50}
+    .order-status.processing{background:rgba(255,193,7,.15);color:#FFC107}
+    .order-status.shipped{background:rgba(33,150,243,.15);color:#2196F3}
+    .order-status.pending{background:rgba(255,87,34,.15);color:#FF5722}
+  </style>
+</head>
+<body>
+  <!-- Announcement bar -->
+  <div class="announce">✦ Complimentary shipping on orders above Rs. 15,000 · Signature gift wrap included ✦</div>
+
+  <!-- Navbar -->
+  <header class="navbar" id="navbar">
+    <div class="nav-wrap">
+      <div class="nav-left">
+        <button class="menu-toggle" aria-label="Open menu"><span></span><span></span><span></span></button>
+        <nav class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="shop.html">Shop</a>
+          <a href="about.html">About</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+      </div>
+      <a href="index.html" class="logo">ASKRI<small>Fragrances</small></a>
+      <div class="nav-right">
+        <button class="nav-icon search-toggle" aria-label="Search"><i class="fas fa-search"></i></button>
+        <a href="wishlist.html" class="nav-icon" aria-label="Wishlist">
+          <i class="fas fa-heart"></i><span class="badge" data-wish-count>0</span>
+        </a>
+        <a href="cart.html" class="nav-icon" aria-label="Cart">
+          <i class="fas fa-bag-shopping"></i><span class="badge" data-cart-count>0</span>
+        </a>
+      </div>
+    </div>
+    <div class="search-bar">
+      <form>
+        <input type="search" placeholder="Search luxury fragrances..." aria-label="Search products" />
+        <button type="submit" aria-label="Search"><i class="fas fa-search"></i></button>
+      </form>
+    </div>
+  </header>
+
+  <!-- Orders Section -->
+  <section class="section orders-section">
+    <div class="container">
+      <div class="orders-header">
+        <div>
+          <h1>Your Orders</h1>
+        </div>
+        <div class="user-info">
+          <div class="user-avatar"><i class="fas fa-user"></i></div>
+          <div>
+            <div class="user-name" id="user-name"></div>
+            <div class="user-email" id="user-email"></div>
+          </div>
+          <button class="logout-btn" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</button>
+        </div>
+      </div>
+      <div id="orders-list"></div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="logo">ASKRI<small>Fragrances</small></div>
+          <p style="color:#666;font-size:.85rem;line-height:1.7;margin-top:14px">A curated house of luxury Arabic, French & Unisex fragrances.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="shop.html">Shop All</a></li>
+            <li><a href="about.html">Our Story</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <p><i class="fas fa-envelope"></i> hello@askri.com</p>
+          <p><i class="fab fa-whatsapp"></i> +971 50 000 0000</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        © 2026 <a href="index.html">Askri Fragrances</a>. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <button class="scroll-top" aria-label="Scroll to top"><i class="fas fa-chevron-up"></i></button>
+  <div id="toast"></div>
+
+  <script src="js/products.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    function showToast(msg){
+      const t=document.getElementById('toast');
+      if(!t) return;
+      t.textContent=msg;t.classList.add('show');
+      setTimeout(()=>t.classList.remove('show'),2500);
+    }
+
+    const user=JSON.parse(sessionStorage.getItem('askri_user')||'null');
+    if(!user){location.href='index.html';}
+    else{
+      document.getElementById('user-name').textContent=user.name||'Guest';
+      document.getElementById('user-email').textContent=user.email||'';
+      renderOrders();
+    }
+
+    function renderOrders(){
+      const box=document.getElementById('orders-list');
+      const orders=JSON.parse(localStorage.getItem('askri_orders')||'[]');
+      const userOrders=orders.filter(o=>o.userEmail===user.email);
+      if(!userOrders.length){
+        box.innerHTML=`<div class="orders-empty"><i class="fas fa-bag-shopping"></i><h3>No orders yet</h3><p>Start shopping and your orders will appear here.</p><a href="shop.html" class="btn">Browse Fragrances</a></div>`;
+        return;
+      }
+      box.innerHTML=userOrders.map(o=>{
+        const items=o.items.map(item=>{
+          const p=window.PRODUCTS.find(x=>x.id===item.id);
+          if(!p) return '';
+          return `<div class="order-item"><img src="${p.image}" alt="${p.name}"><div class="order-item-info"><h4>${p.name}</h4><p>${p.category} · ${p.size}</p><div class="item-price">Rs. ${(p.price*item.qty).toLocaleString()}</div></div></div>`;
+        }).join('');
+        return `<div class="order-card"><div class="order-top"><span class="order-id">${o.id}</span><span class="order-date">${o.date}</span></div><div class="order-items">${items}</div><div class="order-bottom"><span class="order-total">Total: Rs. ${o.total.toLocaleString()}</span><span class="order-status ${o.status}">${o.status.charAt(0).toUpperCase()+o.status.slice(1)}</span></div></div>`;
+      }).join('');
+    }
+
+    function logout(){
+      sessionStorage.removeItem('askri_user');
+      location.href='index.html';
+    }
+  </script>
+</body>
+</html>

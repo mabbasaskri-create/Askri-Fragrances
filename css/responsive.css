@@ -1,0 +1,113 @@
+/* ===========================================
+   Askri Fragrances - Responsive Stylesheet
+   =========================================== */
+
+/* ---------- Large screens ---------- */
+@media (max-width:1200px){
+  .products-grid{grid-template-columns:repeat(3,1fr)}
+  .cat-grid{grid-template-columns:repeat(3,1fr)}
+  .coll-grid{grid-template-columns:repeat(3,1fr)}
+}
+
+/* ---------- Tablet ---------- */
+@media (max-width:992px){
+  .nav-links{display:none}
+  .menu-toggle{display:flex}
+  .nav-wrap{grid-template-columns:auto 1fr auto}
+  .nav-left{justify-content:flex-start}
+  .logo{font-size:1.3rem}
+  .search-toggle{display:inline-flex}
+
+  .hero{min-height:70vh}
+  .hero h1{font-size:3rem}
+
+  .products-grid{grid-template-columns:repeat(3,1fr)}
+  .coll-grid{grid-template-columns:1fr;gap:16px}
+  .coll-card{height:280px}
+  .cat-grid{grid-template-columns:repeat(3,1fr)}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:32px}
+  .counter-grid{grid-template-columns:repeat(2,1fr);gap:32px}
+  .about-story,.contact-wrap,.product-detail{grid-template-columns:1fr;gap:32px}
+  .shop-wrap{grid-template-columns:1fr}
+  .shop-sidebar{position:static}
+  .mv-grid{grid-template-columns:1fr}
+  .modal-inner{grid-template-columns:1fr}
+  .modal-img{aspect-ratio:16/10}
+  .section{padding:60px 0}
+  .section-title h2{font-size:2.2rem}
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width:640px){
+  .container{padding:0 16px}
+  .announce{font-size:.62rem;letter-spacing:.2em}
+
+  .nav-wrap{padding:14px 16px;gap:12px}
+  .logo{font-size:1.05rem;letter-spacing:.2em}
+  .logo small{font-size:.5rem}
+  .nav-right{gap:10px}
+  .nav-icon{padding:6px;font-size:1rem}
+
+  .hero{min-height:80vh}
+  .hero h1{font-size:2.4rem}
+  .hero p{font-size:.95rem}
+  .hero-ctas{flex-direction:column;align-items:stretch;padding:0 40px}
+
+  .products-grid{grid-template-columns:repeat(2,1fr);gap:14px}
+  .product-info{padding:14px}
+  .product-info h3{font-size:.95rem;min-height:2.4em}
+  .product-info .cat{font-size:.6rem}
+  .product-price .now{font-size:1rem}
+  .add-cart-btn{padding:9px;font-size:.65rem}
+  .product-actions{opacity:1;transform:none}
+  .product-actions button{width:32px;height:32px;font-size:.75rem}
+
+  .cat-grid{grid-template-columns:repeat(2,1fr);gap:12px}
+  .cat-card{padding:22px 10px}
+  .cat-icon{width:52px;height:52px;font-size:1.3rem}
+
+  .section{padding:50px 0}
+  .section-title h2{font-size:1.8rem}
+  .section-title{margin-bottom:32px}
+
+  .banner-strip{padding:60px 20px;background-attachment:scroll}
+  .banner-strip h2{font-size:1.8rem}
+
+  .counter-grid{grid-template-columns:repeat(2,1fr);gap:20px}
+  .counter-item .num{font-size:2rem}
+
+  .footer-grid{grid-template-columns:1fr;gap:28px;padding-bottom:32px}
+  .newsletter form{flex-direction:column;border:none;gap:12px}
+  .newsletter input{border:1px solid var(--gold);padding:12px}
+  .newsletter button{padding:12px}
+
+  .cart-table thead{display:none}
+  .cart-table,.cart-table tbody,.cart-table tr,.cart-table td{display:block;width:100%}
+  .cart-table tr{border:1px solid var(--border);margin-bottom:16px;padding:14px}
+  .cart-table td{border:none;padding:6px 0;display:flex;justify-content:space-between;align-items:center}
+  .cart-table td::before{content:attr(data-label);color:var(--gold);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase}
+  .cart-table .item-name{justify-content:flex-start}
+  .cart-summary{max-width:100%;margin-left:0}
+
+  .pd-info h1{font-size:1.8rem}
+  .pd-price .now{font-size:1.5rem}
+  .pd-buy{flex-direction:column}
+  .qty{align-self:flex-start}
+
+  .page-header{padding:50px 20px 40px}
+  .page-header h1{font-size:2rem}
+
+  .contact-form{padding:24px}
+  .map-placeholder{margin:24px 16px 40px}
+
+  .cookie-banner{flex-direction:column;text-align:center;left:12px;right:12px;padding:16px}
+  .toast{right:12px;left:12px;top:80px;text-align:center}
+  .scroll-top{bottom:16px;right:16px;width:42px;height:42px}
+  .popup-inner{padding:32px 24px}
+}
+
+@media (max-width:380px){
+  .products-grid{grid-template-columns:1fr}
+  .cat-grid{grid-template-columns:1fr}
+  .logo small{display:none}
+}
