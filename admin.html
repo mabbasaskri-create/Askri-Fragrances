@@ -609,23 +609,47 @@
         image = 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=800&q=80';
       }
 
+      let existing = {};
+      if (editId) {
+        const found = cachedProducts.find(x => x._docId === editId);
+        if (found) {
+          existing = {
+            id: found.id,
+            rating: found.rating || 5.0,
+            reviewCount: found.reviewCount || 0,
+            reviews: found.reviews || [],
+            notes: found.notes || { top: '', heart: '', base: '' },
+            ingredients: found.ingredients || '',
+            isNew: found.isNew || false,
+            isSale: found.isSale || false,
+            isBest: found.isBest || false
+          };
+        }
+      }
+
       const productData = cleanFirestore({
+        ...existing,
         name, brand, category, price, oldPrice, image, size, stock, description,
         discount: oldPrice ? Math.round((1 - price / oldPrice) * 100) : 0,
-        images: [image], rating: 5.0, reviewCount: 0,
-        notes: { top: '', heart: '', base: '' },
-        ingredients: 'Alcohol Denat., Parfum (Fragrance), Aqua (Water).',
-        isNew: true, isSale: false, isBest: false, reviews: []
+        images: [image]
       });
 
       try {
         if (editId) {
-          await db.collection(PRODUCTS_COLLECTION).doc(editId).update(productData);
+          await db.collection(PRODUCTS_COLLECTION).doc(editId).set(productData, { merge: true });
           showToast('Product updated successfully');
         } else {
           const snap = await db.collection(PRODUCTS_COLLECTION).orderBy('id', 'desc').limit(1).get();
           const maxId = snap.empty ? 0 : snap.docs[0].data().id || 0;
           productData.id = maxId + 1;
+          productData.rating = 5.0;
+          productData.reviewCount = 0;
+          productData.reviews = [];
+          productData.notes = { top: '', heart: '', base: '' };
+          productData.ingredients = 'Alcohol Denat., Parfum (Fragrance), Aqua (Water).';
+          productData.isNew = true;
+          productData.isSale = false;
+          productData.isBest = false;
           await db.collection(PRODUCTS_COLLECTION).doc(String(productData.id)).set(productData);
           showToast('Product added successfully');
         }
