@@ -19,6 +19,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
 const db = firebase.firestore();
+const storage = firebase.storage();
 
 let analytics = null;
 try { analytics = firebase.analytics(); } catch(e) { console.warn('Analytics init skipped:', e); }

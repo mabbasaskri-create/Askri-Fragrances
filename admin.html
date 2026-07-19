@@ -13,6 +13,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
   <style>
     :root{--gold:#d4a853;--bg:#0a0a0a;--card:#111;--border:#1a1a1a;--text:#ccc;--muted:#666}
@@ -108,6 +109,15 @@
     .order-status-select{background:#0a0a0a;border:1px solid #333;color:#fff;padding:4px 8px;border-radius:6px;font-size:.78rem;font-family:'Montserrat',sans-serif;cursor:pointer;outline:none}
     .order-status-select:focus{border-color:var(--gold)}
     .toast{z-index:10000}
+    .img-upload-zone{border:2px dashed #333;border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+    .img-upload-zone:hover{border-color:var(--gold)}
+    .img-upload-zone.has-image{padding:0;border-style:solid}
+    .img-upload-zone input[type="file"]{display:none}
+    .img-upload-zone .upload-placeholder{color:#555;font-size:.85rem}
+    .img-upload-zone .upload-placeholder i{font-size:2rem;color:var(--gold);margin-bottom:10px;display:block}
+    .img-upload-zone .upload-placeholder span{color:var(--gold);text-decoration:underline}
+    .img-upload-zone img{width:100%;max-height:200px;object-fit:cover;display:block}
+    .img-upload-zone .remove-img{position:absolute;top:8px;right:8px;width:28px;height:28px;background:rgba(201,75,75,.9);color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center}
   </style>
 </head>
 <body>
@@ -234,8 +244,16 @@
       <input type="number" id="p-price" placeholder="e.g. 15000" />
       <label>Old Price (Rs.) — leave empty for no discount</label>
       <input type="number" id="p-oldPrice" placeholder="e.g. 20000" />
-      <label>Image URL</label>
-      <input type="text" id="p-image" placeholder="https://images.unsplash.com/..." />
+      <label>Product Image</label>
+      <div class="img-upload-zone" id="img-upload-zone" onclick="document.getElementById('p-image-file').click()">
+        <input type="file" id="p-image-file" accept="image/*" onchange="handleImageSelect(event)" />
+        <div class="upload-placeholder" id="upload-placeholder">
+          <i class="fas fa-cloud-arrow-up"></i>
+          <p>Click to upload image from device</p>
+          <span>Browse Files</span>
+        </div>
+      </div>
+      <input type="hidden" id="p-image" />
       <label>Size</label>
       <select id="p-size"><option>50ml</option><option>100ml</option></select>
       <label>Stock</label>
@@ -268,6 +286,7 @@
   <script>
     const PRODUCTS_COLLECTION = 'products';
     let cachedProducts = [];
+    let selectedImageFile = null;
 
     /* ---- Auth guard ---- */
     auth.onAuthStateChanged(user => {
@@ -307,6 +326,92 @@
         if (v !== undefined) out[k] = cleanFirestore(v);
       }
       return out;
+    }
+
+    /* ---- Image Upload ---- */
+    function handleImageSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) { showToast('Please select an image file'); return; }
+      if (file.size > 5 * 1024 * 1024) { showToast('Image must be under 5MB'); return; }
+      selectedImageFile = file;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        const zone = document.getElementById('img-upload-zone');
+        const placeholder = document.getElementById('upload-placeholder');
+        placeholder.style.display = 'none';
+        let img = zone.querySelector('img');
+        if (!img) { img = document.createElement('img'); zone.appendChild(img); }
+        img.src = ev.target.result;
+        zone.classList.add('has-image');
+        let removeBtn = zone.querySelector('.remove-img');
+        if (!removeBtn) {
+          removeBtn = document.createElement('button');
+          removeBtn.className = 'remove-img';
+          removeBtn.type = 'button';
+          removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+          removeBtn.onclick = function(ev) { ev.stopPropagation(); removeImage(); };
+          zone.appendChild(removeBtn);
+        }
+        removeBtn.style.display = 'flex';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeImage() {
+      selectedImageFile = null;
+      const zone = document.getElementById('img-upload-zone');
+      const placeholder = document.getElementById('upload-placeholder');
+      const img = zone.querySelector('img');
+      const removeBtn = zone.querySelector('.remove-img');
+      if (img) img.remove();
+      if (removeBtn) removeBtn.remove();
+      zone.classList.remove('has-image');
+      placeholder.style.display = '';
+      document.getElementById('p-image-file').value = '';
+    }
+
+    function resetImageUpload() {
+      selectedImageFile = null;
+      const zone = document.getElementById('img-upload-zone');
+      if (!zone) return;
+      const placeholder = document.getElementById('upload-placeholder');
+      const img = zone.querySelector('img');
+      const removeBtn = zone.querySelector('.remove-img');
+      if (img) img.remove();
+      if (removeBtn) removeBtn.remove();
+      zone.classList.remove('has-image');
+      if (placeholder) placeholder.style.display = '';
+      const fileInput = document.getElementById('p-image-file');
+      if (fileInput) fileInput.value = '';
+    }
+
+    function showImagePreview(url) {
+      const zone = document.getElementById('img-upload-zone');
+      const placeholder = document.getElementById('upload-placeholder');
+      placeholder.style.display = 'none';
+      let img = zone.querySelector('img');
+      if (!img) { img = document.createElement('img'); zone.appendChild(img); }
+      img.src = url;
+      zone.classList.add('has-image');
+      let removeBtn = zone.querySelector('.remove-img');
+      if (!removeBtn) {
+        removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-img';
+        removeBtn.type = 'button';
+        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+        removeBtn.onclick = function(ev) { ev.stopPropagation(); removeImage(); };
+        zone.appendChild(removeBtn);
+      }
+      removeBtn.style.display = 'flex';
+    }
+
+    async function uploadImageToStorage(file) {
+      const ext = file.name.split('.').pop();
+      const fileName = 'products/' + Date.now() + '_' + Math.random().toString(36).substr(2, 6) + '.' + ext;
+      const ref = storage.ref(fileName);
+      await ref.put(file);
+      return await ref.getDownloadURL();
     }
 
     /* ---- Seed all 40 products to Firestore ---- */
@@ -413,7 +518,7 @@
       document.getElementById('p-category').selectedIndex = 0;
       document.getElementById('p-price').value = '';
       document.getElementById('p-oldPrice').value = '';
-      document.getElementById('p-image').value = '';
+      resetImageUpload();
       document.getElementById('p-size').selectedIndex = 0;
       document.getElementById('p-stock').value = '';
       document.getElementById('p-desc').value = '';
@@ -430,8 +535,10 @@
       setSelectValue('p-category', p.category);
       document.getElementById('p-price').value = p.price;
       document.getElementById('p-oldPrice').value = p.oldPrice || '';
-      document.getElementById('p-image').value = p.image;
-      setSelectValue('p-size', p.size);
+      selectedImageFile = null;
+      if (p.image) { showImagePreview(p.image); }
+      else { resetImageUpload(); }
+      document.getElementById('p-size').value = p.size || '100ml';
       document.getElementById('p-stock').value = p.stock;
       document.getElementById('p-desc').value = p.description || '';
       document.getElementById('product-modal').classList.add('show');
@@ -444,7 +551,7 @@
       }
     }
 
-    function closeProductModal() { document.getElementById('product-modal').classList.remove('show'); }
+    function closeProductModal() { resetImageUpload(); document.getElementById('product-modal').classList.remove('show'); }
 
     async function saveProduct() {
       const name = document.getElementById('p-name').value.trim();
@@ -455,10 +562,27 @@
       const brand = document.getElementById('p-brand').value;
       const category = document.getElementById('p-category').value;
       const oldPrice = parseInt(document.getElementById('p-oldPrice').value) || null;
-      const image = document.getElementById('p-image').value.trim() || 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=800&q=80';
       const size = document.getElementById('p-size').value;
       const stock = parseInt(document.getElementById('p-stock').value) || 0;
       const description = document.getElementById('p-desc').value.trim();
+
+      let image = document.getElementById('p-image').value || '';
+      const editId = document.getElementById('edit-product-id').value;
+
+      if (selectedImageFile) {
+        showToast('Uploading image...');
+        try {
+          image = await uploadImageToStorage(selectedImageFile);
+        } catch(e) {
+          console.error('Image upload error:', e);
+          showToast('Image upload failed: ' + e.message);
+          return;
+        }
+      }
+
+      if (!image) {
+        image = 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=800&q=80';
+      }
 
       const productData = cleanFirestore({
         name, brand, category, price, oldPrice, image, size, stock, description,
@@ -469,7 +593,6 @@
         isNew: true, isSale: false, isBest: false, reviews: []
       });
 
-      const editId = document.getElementById('edit-product-id').value;
       try {
         if (editId) {
           await db.collection(PRODUCTS_COLLECTION).doc(editId).update(productData);
