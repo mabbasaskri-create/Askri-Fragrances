@@ -296,6 +296,18 @@
       });
     });
 
+    /* ---- Sanitize for Firestore (remove undefined) ---- */
+    function cleanFirestore(obj) {
+      if (obj === undefined) return null;
+      if (obj === null || typeof obj !== 'object') return obj;
+      if (Array.isArray(obj)) return obj.map(cleanFirestore);
+      const out = {};
+      for (const [k, v] of Object.entries(obj)) {
+        if (v !== undefined) out[k] = cleanFirestore(v);
+      }
+      return out;
+    }
+
     /* ---- Seed all 40 products to Firestore ---- */
     async function seedProductsToFirestore() {
       if (!confirm('This will push all 40 products to Firestore. Continue?')) return;
@@ -304,7 +316,7 @@
         const batch = db.batch();
         for (const p of window.PRODUCTS) {
           const ref = db.collection(PRODUCTS_COLLECTION).doc(String(p.id));
-          batch.set(ref, {
+          batch.set(ref, cleanFirestore({
             id: p.id, name: p.name, brand: p.brand, category: p.category,
             price: p.price, oldPrice: p.oldPrice || null, discount: p.discount || 0,
             image: p.image, images: p.images || [p.image],
@@ -314,7 +326,7 @@
             ingredients: p.ingredients || '',
             isNew: p.isNew || false, isSale: p.isSale || false, isBest: p.isBest || false,
             reviews: p.reviews || []
-          });
+          }));
         }
         await batch.commit();
         showToast('All 40 products seeded to Firestore!');
@@ -442,14 +454,14 @@
       const stock = parseInt(document.getElementById('p-stock').value) || 0;
       const description = document.getElementById('p-desc').value.trim();
 
-      const productData = {
+      const productData = cleanFirestore({
         name, brand, category, price, oldPrice, image, size, stock, description,
         discount: oldPrice ? Math.round((1 - price / oldPrice) * 100) : 0,
         images: [image], rating: 5.0, reviewCount: 0,
         notes: { top: '', heart: '', base: '' },
         ingredients: 'Alcohol Denat., Parfum (Fragrance), Aqua (Water).',
         isNew: true, isSale: false, isBest: false, reviews: []
-      };
+      });
 
       const editId = document.getElementById('edit-product-id').value;
       try {
