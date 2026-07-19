@@ -365,7 +365,7 @@
       }
     }
 
-    /* ---- Products (Firestore) ---- */
+    /* ---- Products (Firestore + fallback) ---- */
     async function loadProducts() {
       const grid = document.getElementById('product-grid');
       grid.innerHTML = '<p style="color:#555;text-align:center;padding:30px">Loading products...</p>';
@@ -373,29 +373,34 @@
         const snap = await db.collection(PRODUCTS_COLLECTION).orderBy('id').get();
         cachedProducts = [];
         snap.forEach(doc => cachedProducts.push({ _docId: doc.id, ...doc.data() }));
-        document.getElementById('product-count-label').textContent = 'All Products (' + cachedProducts.length + ')';
-        if (!cachedProducts.length) {
-          grid.innerHTML = '<p style="color:#555;text-align:center;padding:30px">No products in Firestore. Click "Seed to Firestore" to add them.</p>';
-          return;
-        }
-        grid.innerHTML = cachedProducts.map(p =>
-          `<div class="product-item" data-id="${p.id}">
-            <img src="${p.image}" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=800&q=80'">
-            <div class="info">
-              <h4>${p.name}</h4>
-              <div class="price">Rs. ${(p.price||0).toLocaleString()}</div>
-              <div class="stock">${p.stock||0} in stock · ${p.category} · ${p.brand}</div>
-            </div>
-            <div class="actions">
-              <button class="btn btn-outline btn-sm" onclick="openEditProductModal('${p._docId}')"><i class="fas fa-pen"></i> Edit</button>
-              <button class="btn btn-danger btn-sm" onclick="openDeleteConfirm('${p._docId}','${p.name}')"><i class="fas fa-trash"></i></button>
-            </div>
-          </div>`
-        ).join('');
       } catch(e) {
-        console.error('Load products error:', e);
-        grid.innerHTML = '<p style="color:#c94b4b;text-align:center;padding:30px">Error loading products. Make sure Firestore is enabled in Firebase Console.</p>';
+        console.warn('Firestore read failed, using local products:', e);
       }
+      if (!cachedProducts.length && window.PRODUCTS) {
+        cachedProducts = window.PRODUCTS.map(p => ({ _docId: null, ...p }));
+      }
+      document.getElementById('product-count-label').textContent = 'All Products (' + cachedProducts.length + ')';
+      if (!cachedProducts.length) {
+        grid.innerHTML = '<p style="color:#555;text-align:center;padding:30px">No products found.</p>';
+        return;
+      }
+      grid.innerHTML = cachedProducts.map(p =>
+        `<div class="product-item" data-id="${p.id}">
+          <img src="${p.image}" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=800&q=80'">
+          <div class="info">
+            <h4>${p.name}</h4>
+            <div class="price">Rs. ${(p.price||0).toLocaleString()}</div>
+            <div class="stock">${p.stock||0} in stock · ${p.category} · ${p.brand}</div>
+          </div>
+          <div class="actions">
+            ${p._docId
+              ? `<button class="btn btn-outline btn-sm" onclick="openEditProductModal('${p._docId}')"><i class="fas fa-pen"></i> Edit</button>
+                 <button class="btn btn-danger btn-sm" onclick="openDeleteConfirm('${p._docId}','${p.name}')"><i class="fas fa-trash"></i></button>`
+              : `<button class="btn btn-gold btn-sm" onclick="seedProductsToFirestore()"><i class="fas fa-cloud-arrow-up"></i> Push to Firestore</button>`
+            }
+          </div>
+        </div>`
+      ).join('');
     }
 
     /* ---- Add / Edit Product Modal ---- */
