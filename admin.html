@@ -440,11 +440,19 @@
 
     /* ---- Seed all 40 products to Firestore ---- */
     async function seedProductsToFirestore() {
-      if (!confirm('This will push all 40 products to Firestore. Continue?')) return;
-      showToast('Seeding products to Firestore...');
+      if (!confirm('This will add ONLY missing products to Firestore (existing ones won\'t be overwritten). Continue?')) return;
+      showToast('Checking existing products...');
       try {
+        const snap = await db.collection(PRODUCTS_COLLECTION).get();
+        const existingIds = new Set();
+        snap.forEach(doc => existingIds.add(doc.id));
+        const missing = window.PRODUCTS.filter(p => !existingIds.has(String(p.id)));
+        if (!missing.length) {
+          showToast('All products already exist in Firestore!');
+          return;
+        }
         const batch = db.batch();
-        for (const p of window.PRODUCTS) {
+        for (const p of missing) {
           const ref = db.collection(PRODUCTS_COLLECTION).doc(String(p.id));
           batch.set(ref, cleanFirestore({
             id: p.id, name: p.name, brand: p.brand, category: p.category,
@@ -459,7 +467,7 @@
           }));
         }
         await batch.commit();
-        showToast('All 40 products seeded to Firestore!');
+        showToast(missing.length + ' new product(s) added! Existing products untouched.');
         loadProducts();
       } catch(e) {
         console.error('Seed error:', e);
