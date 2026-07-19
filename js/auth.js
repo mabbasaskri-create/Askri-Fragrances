@@ -5,20 +5,21 @@
 
 const ADMIN_EMAIL = 'm.abbas.askri@gmail.com';
 
-// Firebase config — paste your own keys here
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyC1bJM3apWd0C6pHU3g606yenjcq2WMfUU",
+  authDomain: "askri-fragrances.firebaseapp.com",
+  projectId: "askri-fragrances",
+  storageBucket: "askri-fragrances.firebasestorage.app",
+  messagingSenderId: "477510980518",
+  appId: "1:477510980518:web:ad8e39ec15ecb151ea7567",
+  measurementId: "G-D58HD8MLTX"
 };
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
+const analytics = firebase.analytics();
 
 // Sign in with Google
 function signInWithGoogle() {
