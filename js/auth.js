@@ -18,6 +18,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
+const db = firebase.firestore();
 
 let analytics = null;
 try { analytics = firebase.analytics(); } catch(e) { console.warn('Analytics init skipped:', e); }
@@ -66,6 +67,7 @@ function showToast(msg) {
   if (!t) {
     t = document.createElement('div');
     t.id = 'toast';
+    t.className = 'toast';
     document.body.appendChild(t);
   }
   t.textContent = msg;

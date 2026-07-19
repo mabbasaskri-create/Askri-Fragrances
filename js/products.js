@@ -120,6 +120,23 @@ const products = NAMES.map((name, i) => {
   };
 });
 
-// Expose globally (prefer admin-edited products if saved)
-const _adminProducts = localStorage.getItem('askri_admin_products');
-window.PRODUCTS = _adminProducts ? JSON.parse(_adminProducts) : products;
+// Expose globally — Firestore first, localStorage second, local last
+window.PRODUCTS = products;
+
+async function loadProductsFromFirestore() {
+  try {
+    if (typeof db === 'undefined') return false;
+    const snap = await db.collection('products').orderBy('id').get();
+    if (snap.empty) return false;
+    const list = [];
+    snap.forEach(doc => list.push({ id: parseInt(doc.id) || doc.data().id, ...doc.data() }));
+    if (list.length) {
+      window.PRODUCTS = list;
+      window.dispatchEvent(new Event('products-loaded'));
+      return true;
+    }
+  } catch(e) { console.warn('Firestore load failed, using local:', e); }
+  return false;
+}
+
+loadProductsFromFirestore();

@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
   <style>
     :root{--gold:#d4a853;--bg:#0a0a0a;--card:#111;--border:#1a1a1a;--text:#ccc;--muted:#666}
@@ -181,7 +182,10 @@
         <div class="tab-content" id="tab-products">
           <div class="products-header">
             <h3 id="product-count-label">All Products</h3>
-            <button class="btn btn-gold" onclick="openAddProductModal()"><i class="fas fa-plus"></i> Add Product</button>
+            <div style="display:flex;gap:10px">
+              <button class="btn btn-outline" onclick="seedProductsToFirestore()"><i class="fas fa-cloud-arrow-up"></i> Seed to Firestore</button>
+              <button class="btn btn-gold" onclick="openAddProductModal()"><i class="fas fa-plus"></i> Add Product</button>
+            </div>
           </div>
           <div class="product-grid" id="product-grid"></div>
         </div>
@@ -238,8 +242,8 @@
       <label>Description</label>
       <textarea id="p-desc" placeholder="Fragrance description..."></textarea>
       <div class="modal-actions">
-        <button class="btn btn-outline" onclick="closeProductModal()">Cancel</button>
-        <button class="btn btn-gold" onclick="saveProduct()">Save Product</button>
+        <button type="button" class="btn btn-outline" onclick="closeProductModal()">Cancel</button>
+        <button type="button" class="btn btn-gold" onclick="saveProduct()">Save Product</button>
       </div>
     </div>
   </div>
@@ -256,11 +260,14 @@
     </div>
   </div>
 
-  <div id="toast"></div>
+  <div id="toast" class="toast"></div>
 
   <script src="js/auth.js"></script>
   <script src="js/products.js"></script>
   <script>
+    const PRODUCTS_COLLECTION = 'products';
+    let cachedProducts = [];
+
     /* ---- Auth guard ---- */
     auth.onAuthStateChanged(user => {
       if (!user || user.email !== 'm.abbas.askri@gmail.com') {
@@ -289,18 +296,37 @@
       });
     });
 
-    /* ---- Helper: get admin products (from localStorage or default) ---- */
-    function getAdminProducts() {
-      const saved = localStorage.getItem('askri_admin_products');
-      if (saved) return JSON.parse(saved);
-      return window.PRODUCTS ? window.PRODUCTS.map(p => ({...p})) : [];
-    }
-    function saveAdminProducts(list) {
-      localStorage.setItem('askri_admin_products', JSON.stringify(list));
+    /* ---- Seed all 40 products to Firestore ---- */
+    async function seedProductsToFirestore() {
+      if (!confirm('This will push all 40 products to Firestore. Continue?')) return;
+      showToast('Seeding products to Firestore...');
+      try {
+        const batch = db.batch();
+        for (const p of window.PRODUCTS) {
+          const ref = db.collection(PRODUCTS_COLLECTION).doc(String(p.id));
+          batch.set(ref, {
+            id: p.id, name: p.name, brand: p.brand, category: p.category,
+            price: p.price, oldPrice: p.oldPrice || null, discount: p.discount || 0,
+            image: p.image, images: p.images || [p.image],
+            size: p.size, stock: p.stock, description: p.description || '',
+            rating: p.rating || 5.0, reviewCount: p.reviewCount || 0,
+            notes: p.notes || { top:'', heart:'', base:'' },
+            ingredients: p.ingredients || '',
+            isNew: p.isNew || false, isSale: p.isSale || false, isBest: p.isBest || false,
+            reviews: p.reviews || []
+          });
+        }
+        await batch.commit();
+        showToast('All 40 products seeded to Firestore!');
+        loadProducts();
+      } catch(e) {
+        console.error('Seed error:', e);
+        showToast('Seed failed: ' + e.message);
+      }
     }
 
     /* ---- Dashboard ---- */
-    function loadDashboard() {
+    async function loadDashboard() {
       const orders = JSON.parse(localStorage.getItem('askri_orders') || '[]');
       const users = JSON.parse(localStorage.getItem('askri_users') || '[]');
       let totalRevenue = 0;
@@ -309,7 +335,13 @@
       document.getElementById('stat-revenue').textContent = 'Rs. ' + totalRevenue.toLocaleString();
       document.getElementById('stat-orders').textContent = orders.length;
       document.getElementById('stat-users').textContent = users.length;
-      document.getElementById('stat-products').textContent = getAdminProducts().length;
+
+      try {
+        const snap = await db.collection(PRODUCTS_COLLECTION).get();
+        document.getElementById('stat-products').textContent = snap.size;
+      } catch(e) {
+        document.getElementById('stat-products').textContent = window.PRODUCTS.length;
+      }
 
       const tbody = document.getElementById('recent-orders-body');
       if (!orders.length) {
@@ -321,26 +353,37 @@
       }
     }
 
-    /* ---- Products ---- */
-    function loadProducts() {
-      const list = getAdminProducts();
+    /* ---- Products (Firestore) ---- */
+    async function loadProducts() {
       const grid = document.getElementById('product-grid');
-      document.getElementById('product-count-label').textContent = 'All Products (' + list.length + ')';
-      if (!list.length) { grid.innerHTML = '<p style="color:#555">No products found</p>'; return; }
-      grid.innerHTML = list.map(p =>
-        `<div class="product-item" data-id="${p.id}">
-          <img src="${p.image}" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=800&q=80'">
-          <div class="info">
-            <h4>${p.name}</h4>
-            <div class="price">Rs. ${p.price.toLocaleString()}</div>
-            <div class="stock">${p.stock} in stock · ${p.category} · ${p.brand}</div>
-          </div>
-          <div class="actions">
-            <button class="btn btn-outline btn-sm" onclick="openEditProductModal(${p.id})"><i class="fas fa-pen"></i> Edit</button>
-            <button class="btn btn-danger btn-sm" onclick="openDeleteConfirm(${p.id})"><i class="fas fa-trash"></i></button>
-          </div>
-        </div>`
-      ).join('');
+      grid.innerHTML = '<p style="color:#555;text-align:center;padding:30px">Loading products...</p>';
+      try {
+        const snap = await db.collection(PRODUCTS_COLLECTION).orderBy('id').get();
+        cachedProducts = [];
+        snap.forEach(doc => cachedProducts.push({ _docId: doc.id, ...doc.data() }));
+        document.getElementById('product-count-label').textContent = 'All Products (' + cachedProducts.length + ')';
+        if (!cachedProducts.length) {
+          grid.innerHTML = '<p style="color:#555;text-align:center;padding:30px">No products in Firestore. Click "Seed to Firestore" to add them.</p>';
+          return;
+        }
+        grid.innerHTML = cachedProducts.map(p =>
+          `<div class="product-item" data-id="${p.id}">
+            <img src="${p.image}" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=800&q=80'">
+            <div class="info">
+              <h4>${p.name}</h4>
+              <div class="price">Rs. ${(p.price||0).toLocaleString()}</div>
+              <div class="stock">${p.stock||0} in stock · ${p.category} · ${p.brand}</div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-outline btn-sm" onclick="openEditProductModal('${p._docId}')"><i class="fas fa-pen"></i> Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="openDeleteConfirm('${p._docId}','${p.name}')"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>`
+        ).join('');
+      } catch(e) {
+        console.error('Load products error:', e);
+        grid.innerHTML = '<p style="color:#c94b4b;text-align:center;padding:30px">Error loading products. Make sure Firestore is enabled in Firebase Console.</p>';
+      }
     }
 
     /* ---- Add / Edit Product Modal ---- */
@@ -359,12 +402,11 @@
       document.getElementById('product-modal').classList.add('show');
     }
 
-    function openEditProductModal(id) {
-      const list = getAdminProducts();
-      const p = list.find(x => x.id === id);
+    function openEditProductModal(docId) {
+      const p = cachedProducts.find(x => x._docId === docId);
       if (!p) return;
       document.getElementById('modal-title').textContent = 'Edit Product';
-      document.getElementById('edit-product-id').value = id;
+      document.getElementById('edit-product-id').value = docId;
       document.getElementById('p-name').value = p.name;
       setSelectValue('p-brand', p.brand);
       setSelectValue('p-category', p.category);
@@ -386,7 +428,7 @@
 
     function closeProductModal() { document.getElementById('product-modal').classList.remove('show'); }
 
-    function saveProduct() {
+    async function saveProduct() {
       const name = document.getElementById('p-name').value.trim();
       const price = parseInt(document.getElementById('p-price').value);
       if (!name) { showToast('Product name is required'); return; }
@@ -400,50 +442,50 @@
       const stock = parseInt(document.getElementById('p-stock').value) || 0;
       const description = document.getElementById('p-desc').value.trim();
 
-      let list = getAdminProducts();
+      const productData = {
+        name, brand, category, price, oldPrice, image, size, stock, description,
+        discount: oldPrice ? Math.round((1 - price / oldPrice) * 100) : 0,
+        images: [image], rating: 5.0, reviewCount: 0,
+        notes: { top: '', heart: '', base: '' },
+        ingredients: 'Alcohol Denat., Parfum (Fragrance), Aqua (Water).',
+        isNew: true, isSale: false, isBest: false, reviews: []
+      };
+
       const editId = document.getElementById('edit-product-id').value;
-
-      if (editId) {
-        const idx = list.findIndex(x => x.id === parseInt(editId));
-        if (idx !== -1) {
-          list[idx] = { ...list[idx], name, brand, category, price, oldPrice, image, size, stock, description,
-            discount: oldPrice ? Math.round((1 - price/oldPrice) * 100) : 0,
-            images: list[idx].images ? [image, ...list[idx].images.slice(1)] : [image]
-          };
+      try {
+        if (editId) {
+          await db.collection(PRODUCTS_COLLECTION).doc(editId).update(productData);
+          showToast('Product updated successfully');
+        } else {
+          const snap = await db.collection(PRODUCTS_COLLECTION).orderBy('id', 'desc').limit(1).get();
+          const maxId = snap.empty ? 0 : snap.docs[0].data().id || 0;
+          productData.id = maxId + 1;
+          await db.collection(PRODUCTS_COLLECTION).doc(String(productData.id)).set(productData);
+          showToast('Product added successfully');
         }
-        showToast('Product updated successfully');
-      } else {
-        const newId = list.length ? Math.max(...list.map(x => x.id)) + 1 : 1;
-        list.push({
-          id: newId, name, brand, category, price, oldPrice, image, size, stock, description,
-          discount: oldPrice ? Math.round((1 - price/oldPrice) * 100) : 0,
-          images: [image], rating: 5.0, reviewCount: 0,
-          notes: { top: '', heart: '', base: '' },
-          ingredients: 'Alcohol Denat., Parfum (Fragrance), Aqua (Water).',
-          isNew: true, isSale: false, isBest: false,
-          reviews: []
-        });
-        showToast('Product added successfully');
+        closeProductModal();
+        loadProducts();
+      } catch (e) {
+        console.error('Save error:', e);
+        showToast('Save failed: ' + e.message);
       }
-
-      saveAdminProducts(list);
-      closeProductModal();
-      loadProducts();
     }
 
     /* ---- Delete Product ---- */
-    function openDeleteConfirm(id) {
+    function openDeleteConfirm(docId, name) {
       document.getElementById('delete-confirm').classList.add('show');
-      document.getElementById('confirm-delete-btn').onclick = () => deleteProduct(id);
+      document.getElementById('confirm-delete-btn').onclick = () => deleteProduct(docId);
     }
     function closeDeleteConfirm() { document.getElementById('delete-confirm').classList.remove('show'); }
-    function deleteProduct(id) {
-      let list = getAdminProducts();
-      list = list.filter(x => x.id !== id);
-      saveAdminProducts(list);
-      closeDeleteConfirm();
-      loadProducts();
-      showToast('Product deleted');
+    async function deleteProduct(docId) {
+      try {
+        await db.collection(PRODUCTS_COLLECTION).doc(docId).delete();
+        closeDeleteConfirm();
+        loadProducts();
+        showToast('Product deleted');
+      } catch(e) {
+        showToast('Delete failed: ' + e.message);
+      }
     }
 
     /* ---- All Orders with status management ---- */

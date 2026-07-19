@@ -134,6 +134,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if($('#product-detail')) renderProduct();
   if($('#cart-page')) renderCart();
   if($('#wishlist-page')) renderWishlist();
+
+  window.addEventListener('products-loaded', () => {
+    if($('#featured-products')) renderFeatured();
+    if($('#shop-products')) renderShop();
+    if($('#product-detail')) renderProduct();
+  });
 });
 
 /* ---------- Card renderer (shared) ---------- */
@@ -312,6 +318,8 @@ function initShop(){
   }
 
   renderShop();
+
+  window.addEventListener('products-loaded', () => renderShop());
 }
 
 function renderShop(){
