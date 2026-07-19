@@ -120,5 +120,6 @@ const products = NAMES.map((name, i) => {
   };
 });
 
-// Expose globally
-window.PRODUCTS = products;
+// Expose globally (prefer admin-edited products if saved)
+const _adminProducts = localStorage.getItem('askri_admin_products');
+window.PRODUCTS = _adminProducts ? JSON.parse(_adminProducts) : products;

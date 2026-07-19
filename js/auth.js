@@ -15,13 +15,13 @@ const firebaseConfig = {
   measurementId: "G-D58HD8MLTX"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
-const analytics = firebase.analytics();
 
-// Sign in with Google
+let analytics = null;
+try { analytics = firebase.analytics(); } catch(e) { console.warn('Analytics init skipped:', e); }
+
 function signInWithGoogle() {
   auth.signInWithPopup(provider)
     .then(result => {
@@ -41,12 +41,17 @@ function signInWithGoogle() {
     });
 }
 
-// Check if user is logged in (for showing profile icon state)
 function getCurrentUser() {
   return JSON.parse(sessionStorage.getItem('askri_user') || 'null');
 }
 
-// Update nav icon if logged in
+function signOutUser() {
+  auth.signOut().then(() => {
+    sessionStorage.removeItem('askri_user');
+    window.location.href = 'index.html';
+  });
+}
+
 function updateLoginIcon() {
   const user = getCurrentUser();
   const loginBtn = document.querySelector('.login-btn');
@@ -54,6 +59,19 @@ function updateLoginIcon() {
     loginBtn.classList.add('logged-in');
     loginBtn.title = user.email;
   }
+}
+
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
 document.addEventListener('DOMContentLoaded', updateLoginIcon);
