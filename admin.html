@@ -109,6 +109,38 @@
     .order-status-select{background:#0a0a0a;border:1px solid #333;color:#fff;padding:4px 8px;border-radius:6px;font-size:.78rem;font-family:'Montserrat',sans-serif;cursor:pointer;outline:none}
     .order-status-select:focus{border-color:var(--gold)}
     .toast{z-index:10000}
+
+    /* Mobile Preview */
+    .mobile-preview-btn{
+      background:transparent;border:1px solid #333;color:#888;padding:6px 14px;border-radius:8px;font-size:.78rem;cursor:pointer;transition:all .25s;display:inline-flex;align-items:center;gap:8px;font-family:'Montserrat',sans-serif;
+    }
+    .mobile-preview-btn:hover{border-color:var(--gold);color:var(--gold)}
+    .mobile-preview-overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:10000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);
+    }
+    .mobile-preview-overlay.show{display:flex}
+    .phone-frame{
+      position:relative;width:375px;height:750px;background:#000;border-radius:40px;border:3px solid #333;overflow:hidden;box-shadow:0 0 60px rgba(0,0,0,.6);
+    }
+    .phone-notch{
+      position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:28px;background:#000;border-radius:0 0 18px 18px;z-index:3;
+    }
+    .phone-notch::after{
+      content:'';position:absolute;top:8px;left:50%;transform:translateX(-50%);width:60px;height:5px;background:#333;border-radius:10px;
+    }
+    .phone-frame iframe{
+      width:100%;height:100%;border:none;border-radius:37px;
+    }
+    .phone-home-bar{
+      position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:130px;height:5px;background:#555;border-radius:10px;z-index:3;
+    }
+    .phone-close-btn{
+      position:absolute;top:-50px;right:-50px;width:40px;height:40px;background:#222;border:1px solid #444;border-radius:50%;color:#888;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s;
+    }
+    .phone-close-btn:hover{background:#c94b4b;color:#fff;border-color:#c94b4b}
+    .phone-label{
+      text-align:center;color:#666;font-size:.75rem;margin-top:16px;letter-spacing:.15em;text-transform:uppercase;
+    }
     .img-upload-zone{border:2px dashed #333;border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
     .img-upload-zone:hover{border-color:var(--gold)}
     .img-upload-zone.has-image{padding:0;border-style:solid}
@@ -150,6 +182,7 @@
         <div class="admin-header">
           <h1 id="page-title">Dashboard</h1>
           <div class="admin-user">
+            <button class="mobile-preview-btn" onclick="openMobilePreview()"><i class="fas fa-mobile-screen-button"></i> View as Mobile</button>
             <span id="admin-email"></span>
             <div class="avatar"><i class="fas fa-user-shield"></i></div>
             <button class="logout-btn" onclick="signOutUser()"><i class="fas fa-right-from-bracket"></i> Logout</button>
@@ -280,6 +313,19 @@
   </div>
 
   <div id="toast" class="toast"></div>
+
+  <!-- Mobile Preview Overlay -->
+  <div class="mobile-preview-overlay" id="mobile-preview-overlay" onclick="closeMobilePreview(event)">
+    <div style="position:relative">
+      <button class="phone-close-btn" onclick="closeMobilePreview()"><i class="fas fa-xmark"></i></button>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <iframe id="mobile-preview-frame" src="index.html"></iframe>
+        <div class="phone-home-bar"></div>
+      </div>
+      <div class="phone-label">Mobile Preview — 375 x 750</div>
+    </div>
+  </div>
 
   <script src="js/auth.js"></script>
   <script src="js/products.js"></script>
@@ -738,6 +784,22 @@
     /* ---- Close modals on overlay click ---- */
     document.getElementById('product-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeProductModal(); });
     document.getElementById('delete-confirm').addEventListener('click', e => { if (e.target === e.currentTarget) closeDeleteConfirm(); });
+
+    /* ---- Mobile Preview ---- */
+    function openMobilePreview() {
+      const overlay = document.getElementById('mobile-preview-overlay');
+      const frame = document.getElementById('mobile-preview-frame');
+      frame.src = 'index.html';
+      overlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMobilePreview(e) {
+      if (e && e.target !== e.currentTarget && !e.target.closest('.phone-close-btn')) return;
+      const overlay = document.getElementById('mobile-preview-overlay');
+      overlay.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMobilePreview(); });
   </script>
 </body>
 </html>
