@@ -618,19 +618,14 @@ function renderCheckout(){
                 </div>
               </div>
             </div>
-            <div class="form-row cols-2" style="margin-top:20px">
-              <div class="form-group">
-                <label>Your JazzCash Number <span class="req">*</span></label>
-                <input type="tel" id="co-sender-phone" placeholder="Number you paid from" />
-                <span class="form-error">Enter the JazzCash number you paid from</span>
-              </div>
+            <div class="form-row" style="margin-top:20px">
               <div class="form-group">
                 <label>Transaction ID <span class="req">*</span></label>
-                <input type="text" id="co-txn-id" placeholder="e.g. 1234567890" />
+                <input type="text" id="co-txn-id" placeholder="JazzCash Transaction ID from SMS" />
                 <span class="form-error">Enter transaction ID from JazzCash SMS</span>
               </div>
             </div>
-            <span class="form-error" id="screenshot-error" style="margin-top:8px;display:block">Upload screenshot + enter your JazzCash number & Transaction ID to verify</span>
+            <span class="form-error" id="screenshot-error" style="margin-top:8px;display:block">Upload JazzCash receipt screenshot + enter Transaction ID</span>
           </div>
           <div class="form-row" style="margin-top:20px">
             <div class="form-group">
@@ -693,7 +688,7 @@ function removeScreenshot(){
   $('#upload-preview').style.display = 'none';
   const errEl = $('#screenshot-error');
   errEl.style.display = 'block';
-  errEl.textContent = 'Upload JazzCash receipt screenshot + enter your number & Transaction ID';
+  errEl.textContent = 'Upload JazzCash receipt screenshot + enter Transaction ID';
   errEl.className = 'form-error';
   const status = $('#upload-status');
   status.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Screenshot uploaded';
@@ -701,13 +696,11 @@ function removeScreenshot(){
 }
 function checkPaymentReady(){
   if(!screenshotDataUrl) return;
-  const senderPhone = ($('#co-sender-phone')||{}).value||'';
   const txnId = ($('#co-txn-id')||{}).value||'';
   const status = $('#upload-status');
   const errEl = $('#screenshot-error');
-  const phoneOk = /^03\d{9}$/.test(senderPhone.replace(/\s/g,''));
   const txnOk = txnId.trim().length >= 4;
-  if(phoneOk && txnOk){
+  if(txnOk){
     screenshotReady = true;
     status.innerHTML = '<i class="fas fa-clock"></i> Ready — Will verify on WhatsApp';
     status.className = 'upload-status pending';
@@ -717,16 +710,11 @@ function checkPaymentReady(){
     status.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Screenshot uploaded';
     status.className = 'upload-status';
     errEl.style.display = 'block';
-    let parts = [];
-    if(!phoneOk) parts.push('enter JazzCash number');
-    if(!txnOk) parts.push('enter Transaction ID');
-    errEl.textContent = 'Also ' + parts.join(' & ');
+    errEl.textContent = 'Also enter Transaction ID';
   }
 }
 function bindPaymentListeners(){
-  const sp = $('#co-sender-phone');
   const ti = $('#co-txn-id');
-  if(sp) sp.addEventListener('input', checkPaymentReady);
   if(ti) ti.addEventListener('input', checkPaymentReady);
 }
 function validateCheckout(){
@@ -746,20 +734,16 @@ function validateCheckout(){
   });
   if(selectedPayment === 'online'){
     const errEl = $('#screenshot-error');
-    const senderEl = $('#co-sender-phone');
     const txnEl = $('#co-txn-id');
-    const phoneOk = /^03\d{9}$/.test((senderEl.value||'').replace(/\s/g,''));
     const txnOk = (txnEl.value||'').trim().length >= 4;
     if(!screenshotDataUrl || !screenshotReady){
       valid = false;
-      if(senderEl && !phoneOk) senderEl.closest('.form-group').classList.add('error');
       if(txnEl && !txnOk) txnEl.closest('.form-group').classList.add('error');
       if(!screenshotDataUrl){
         errEl.style.display = 'block';
-        errEl.textContent = 'Upload JazzCash receipt screenshot + enter your number & Transaction ID';
+        errEl.textContent = 'Upload JazzCash receipt screenshot + enter Transaction ID';
       }
     } else {
-      if(senderEl) senderEl.closest('.form-group').classList.remove('error');
       if(txnEl) txnEl.closest('.form-group').classList.remove('error');
       errEl.style.display = 'none';
     }
@@ -777,7 +761,6 @@ function placeOrder(subtotal, total){
   const notes = $('#co-notes').value.trim();
   const isBankTransfer = selectedPayment === 'online';
   const payment = isBankTransfer ? 'Bank Transfer (JazzCash)' : 'Cash on Delivery';
-  const senderPhone = isBankTransfer ? ($('#co-sender-phone')||{}).value||'' : '';
   const txnId = isBankTransfer ? ($('#co-txn-id')||{}).value||'' : '';
 
   let itemsList = '';
@@ -792,7 +775,7 @@ function placeOrder(subtotal, total){
     (email ? `📧 *Email:* ${email}\n` : '') +
     `📍 *Address:* ${address}, ${city}, ${province}\n` +
     `💳 *Payment:* ${payment}\n` +
-    (isBankTransfer ? `🏦 *JazzCash:* 03256646684 (IMLI LEEA)\n📞 *Paid From:* ${senderPhone}\n🆔 *Txn ID:* ${txnId}\n` : '') +
+    (isBankTransfer ? `🏦 *JazzCash:* 03256646684 (IMLI LEEA)\n🆔 *Txn ID:* ${txnId}\n` : '') +
     `\n*Items:*\n${itemsList}\n` +
     `🚚 *Shipping:* ${subtotal > 15000 ? 'Free' : 'Rs. 250'}\n` +
     `💰 *Total:* ${money(total)}\n` +
@@ -803,8 +786,8 @@ function placeOrder(subtotal, total){
   box.innerHTML = `
     <div class="order-success">
       <i class="fas fa-check-circle"></i>
-      <h3>Order Placed Successfully!</h3>
-      <p>Thank you, ${name}! Your order has been received.<br>We will contact you shortly to confirm.</p>
+      <h3>We will be packing your order soon!</h3>
+      <p>Thank you, ${name}! Your order has been received.</p>
       ${isBankTransfer ? '<p style="margin-top:12px;color:#ff9800;font-size:.9rem"><i class="fas fa-clock"></i> Payment verification pending — we will verify your screenshot on WhatsApp.</p>' : ''}
       <a href="shop.html" class="btn btn-primary" style="margin-top:10px">Continue Shopping</a>
     </div>
