@@ -491,7 +491,7 @@ function renderCart(){
       <div class="row"><span>Shipping</span><span>${shipping ? money(shipping) : 'Free'}</span></div>
       <div class="row"><span>Tax (8%)</span><span>${money(tax)}</span></div>
       <div class="row total"><span>Total</span><span>${money(total)}</span></div>
-      <button class="btn btn-primary btn-block" style="margin-top:20px" onclick="showToast('Checkout is a demo')">Proceed to Checkout</button>
+      <button class="btn btn-primary btn-block" style="margin-top:20px" onclick="showCheckout()">Proceed to Checkout</button>
       <a href="shop.html" class="btn btn-block" style="margin-top:10px">Continue Shopping</a>
     </div>
   `;
@@ -503,6 +503,188 @@ function renderCart(){
     updateQty(id, b.dataset.action === 'plus' ? item.qty+1 : item.qty-1);
   }));
   $$('[data-qtyinput]').forEach(i => i.addEventListener('change', () => updateQty(Number(i.dataset.qtyinput), i.value)));
+}
+
+/* ---------- Checkout ---------- */
+let selectedPayment = 'cod';
+function showCheckout(){
+  const cart = getCart();
+  if(!cart.length) return;
+  renderCheckout();
+}
+function renderCheckout(){
+  const cart = getCart();
+  const box = $('#cart-content');
+  let subtotal = 0;
+  const items = cart.map(item => {
+    const p = findProduct(item.id); if(!p) return '';
+    const line = p.price * item.qty; subtotal += line;
+    return `<div class="checkout-item">
+      <img src="${p.image}" alt="${p.name}">
+      <div class="ci-info"><h4>${p.name}</h4><p>${p.size}</p></div>
+      <span class="ci-qty">x${item.qty}</span>
+    </div>`;
+  }).join('');
+  const shipping = subtotal > 15000 ? 0 : 250;
+  const tax = +(subtotal * 0.08).toFixed(2);
+  const total = subtotal + shipping + tax;
+
+  box.innerHTML = `
+    <div class="back-to-cart" onclick="renderCart()"><i class="fas fa-arrow-left"></i> Back to Cart</div>
+    <div class="checkout-grid">
+      <div class="checkout-form">
+        <h2><i class="fas fa-truck"></i> Billing Details</h2>
+        <form id="checkout-form" novalidate>
+          <div class="form-row cols-2">
+            <div class="form-group">
+              <label>Full Name <span class="req">*</span></label>
+              <input type="text" id="co-name" placeholder="Your full name" required />
+              <span class="form-error">Please enter your name</span>
+            </div>
+            <div class="form-group">
+              <label>Phone Number <span class="req">*</span></label>
+              <input type="tel" id="co-phone" placeholder="03XXXXXXXXX" required />
+              <span class="form-error">Please enter a valid phone number</span>
+            </div>
+          </div>
+          <div class="form-row" style="margin-top:20px">
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" id="co-email" placeholder="your@email.com" />
+            </div>
+          </div>
+          <div class="form-row" style="margin-top:20px">
+            <div class="form-group">
+              <label>Full Address <span class="req">*</span></label>
+              <input type="text" id="co-address" placeholder="House #, Street, Area, Landmark" required />
+              <span class="form-error">Please enter your address</span>
+            </div>
+          </div>
+          <div class="form-row cols-2" style="margin-top:20px">
+            <div class="form-group">
+              <label>City <span class="req">*</span></label>
+              <input type="text" id="co-city" placeholder="e.g. Lahore" required />
+              <span class="form-error">Please enter your city</span>
+            </div>
+            <div class="form-group">
+              <label>Province <span class="req">*</span></label>
+              <select id="co-province" required>
+                <option value="">Select Province</option>
+                <option>Punjab</option>
+                <option>Sindh</option>
+                <option>KPK</option>
+                <option>Balochistan</option>
+                <option>Islamabad</option>
+                <option>Azad Kashmir</option>
+                <option>Gilgit Baltistan</option>
+              </select>
+              <span class="form-error">Please select your province</span>
+            </div>
+          </div>
+          <div class="form-row" style="margin-top:24px">
+            <label style="font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:block">Payment Method <span class="req">*</span></label>
+            <div class="payment-methods">
+              <div class="payment-opt active" data-pay="cod" onclick="selectPayment(this)">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>Cash on Delivery</span>
+              </div>
+              <div class="payment-opt" data-pay="online" onclick="selectPayment(this)">
+                <i class="fas fa-university"></i>
+                <span>Bank Transfer</span>
+              </div>
+            </div>
+          </div>
+          <div class="form-row" style="margin-top:20px">
+            <div class="form-group">
+              <label>Order Notes (Optional)</label>
+              <textarea id="co-notes" placeholder="Any special instructions for your order..."></textarea>
+            </div>
+          </div>
+          <button type="submit" class="checkout-btn"><i class="fas fa-lock"></i>&nbsp; Place Order — ${money(total)}</button>
+        </form>
+      </div>
+      <div class="checkout-order-summary">
+        <div class="cart-summary">
+          <h3>Order Summary</h3>
+          <div class="checkout-items">${items}</div>
+          <div class="row"><span>Subtotal</span><span>${money(subtotal)}</span></div>
+          <div class="row"><span>Shipping</span><span>${shipping ? money(shipping) : 'Free'}</span></div>
+          <div class="row"><span>Tax (8%)</span><span>${money(tax)}</span></div>
+          <div class="row total"><span>Total</span><span>${money(total)}</span></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  $('#checkout-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!validateCheckout()) return;
+    placeOrder(subtotal, total);
+  });
+}
+function selectPayment(el){
+  $$('.payment-opt').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+  selectedPayment = el.dataset.pay;
+}
+function validateCheckout(){
+  let valid = true;
+  const fields = [
+    {id:'co-name', test: v => v.trim().length >= 2},
+    {id:'co-phone', test: v => /^03\d{9}$/.test(v.replace(/\s/g,''))},
+    {id:'co-address', test: v => v.trim().length >= 5},
+    {id:'co-city', test: v => v.trim().length >= 2},
+    {id:'co-province', test: v => v !== ''}
+  ];
+  fields.forEach(f => {
+    const el = $('#'+f.id);
+    const group = el.closest('.form-group');
+    if(!f.test(el.value)){ group.classList.add('error'); valid = false; }
+    else group.classList.remove('error');
+  });
+  return valid;
+}
+function placeOrder(subtotal, total){
+  const cart = getCart();
+  const name = $('#co-name').value.trim();
+  const phone = $('#co-phone').value.trim();
+  const email = $('#co-email').value.trim();
+  const address = $('#co-address').value.trim();
+  const city = $('#co-city').value.trim();
+  const province = $('#co-province').value;
+  const notes = $('#co-notes').value.trim();
+  const payment = selectedPayment === 'cod' ? 'Cash on Delivery' : 'Bank Transfer';
+
+  let itemsList = '';
+  cart.forEach(item => {
+    const p = findProduct(item.id);
+    if(p) itemsList += `• ${p.name} (${p.size}) x${item.qty} — ${money(p.price * item.qty)}\n`;
+  });
+
+  const msg = `🛍 *New Order — Askri Fragrances*\n\n` +
+    `👤 *Name:* ${name}\n` +
+    `📞 *Phone:* ${phone}\n` +
+    (email ? `📧 *Email:* ${email}\n` : '') +
+    `📍 *Address:* ${address}, ${city}, ${province}\n` +
+    `💳 *Payment:* ${payment}\n\n` +
+    `*Items:*\n${itemsList}\n` +
+    `🚚 *Shipping:* ${subtotal > 15000 ? 'Free' : 'Rs. 250'}\n` +
+    `💰 *Total:* ${money(total)}\n` +
+    (notes ? `\n📝 *Notes:* ${notes}` : '');
+
+  const box = $('#cart-content');
+  box.innerHTML = `
+    <div class="order-success">
+      <i class="fas fa-check-circle"></i>
+      <h3>Order Placed Successfully!</h3>
+      <p>Thank you, ${name}! Your order has been received.<br>We will contact you shortly to confirm.</p>
+      <a href="shop.html" class="btn btn-primary" style="margin-top:10px">Continue Shopping</a>
+    </div>
+  `;
+
+  window.open(`https://wa.me/923256646684?text=${encodeURIComponent(msg)}`, '_blank');
+  localStorage.removeItem('askri_cart');
+  updateBadges();
 }
 
 /* ---------- Wishlist page ---------- */

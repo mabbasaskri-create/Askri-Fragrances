@@ -88,6 +88,11 @@
   .cart-table td::before{content:attr(data-label);color:var(--gold);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase}
   .cart-table .item-name{justify-content:flex-start}
   .cart-summary{max-width:100%;margin-left:0}
+  .checkout-grid{grid-template-columns:1fr}
+  .checkout-order-summary{position:static}
+  .checkout-form{padding:24px}
+  .form-row.cols-2{grid-template-columns:1fr}
+  .payment-methods{flex-direction:column;gap:10px}
 
   .pd-info h1{font-size:1.8rem}
   .pd-price .now{font-size:1.5rem}

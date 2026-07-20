@@ -587,6 +587,57 @@ footer{
 .empty-state h3{font-size:1.6rem;margin-bottom:12px;color:#fff}
 .empty-state p{margin-bottom:24px}
 
+/* ---------- Checkout Form ---------- */
+.checkout-grid{display:grid;grid-template-columns:1fr 400px;gap:40px;align-items:start}
+.checkout-form{background:#141414;border:1px solid var(--border);padding:36px}
+.checkout-form h2{font-size:1.5rem;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid var(--border);font-weight:400}
+.checkout-form h2 i{color:var(--gold);margin-right:10px}
+.form-row{display:grid;gap:20px}
+.form-row.cols-2{grid-template-columns:1fr 1fr}
+.form-group{display:flex;flex-direction:column}
+.form-group label{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;font-weight:500}
+.form-group label .req{color:#c94b4b;margin-left:2px}
+.form-group input,.form-group select,.form-group textarea{
+  padding:14px 16px;background:#0a0a0a;border:1px solid var(--border);color:#fff;
+  font-size:.95rem;font-family:inherit;transition:.3s;outline:none;
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--gold)}
+.form-group input::placeholder,.form-group textarea::placeholder{color:#555}
+.form-group textarea{resize:vertical;min-height:90px}
+.form-group select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23c9a96e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.form-group select option{background:#141414;color:#fff}
+.form-error{font-size:.72rem;color:#c94b4b;margin-top:4px;display:none}
+.form-group.error input,.form-group.error select,.form-group.error textarea{border-color:#c94b4b}
+.form-group.error .form-error{display:block}
+.payment-methods{display:flex;gap:16px;margin-top:4px}
+.payment-opt{flex:1;padding:16px;border:1px solid var(--border);background:#0a0a0a;cursor:pointer;transition:.3s;text-align:center}
+.payment-opt:hover,.payment-opt.active{border-color:var(--gold)}
+.payment-opt i{display:block;font-size:1.6rem;color:var(--gold);margin-bottom:8px}
+.payment-opt span{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:#ccc}
+.payment-opt.active span{color:var(--gold)}
+.checkout-btn{
+  width:100%;padding:18px;margin-top:32px;font-size:1rem;letter-spacing:.15em;
+  text-transform:uppercase;border:none;cursor:pointer;font-family:inherit;font-weight:600;
+  background:var(--gold);color:#0a0a0a;transition:.3s;
+}
+.checkout-btn:hover{background:#b8953e;color:#fff}
+.checkout-btn:disabled{opacity:.5;cursor:not-allowed}
+.checkout-order-summary{position:sticky;top:100px}
+.checkout-order-summary .cart-summary{max-width:100%;margin-left:0}
+.checkout-items{margin-bottom:20px}
+.checkout-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);align-items:center}
+.checkout-item:last-child{border-bottom:none}
+.checkout-item img{width:60px;height:60px;object-fit:cover;border:1px solid var(--border)}
+.checkout-item .ci-info h4{color:#fff;font-size:.9rem;margin-bottom:4px}
+.checkout-item .ci-info p{color:var(--gold);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}
+.checkout-item .ci-qty{margin-left:auto;color:#999;font-size:.85rem}
+.back-to-cart{display:inline-flex;align-items:center;gap:8px;color:var(--gold);font-size:.85rem;cursor:pointer;margin-bottom:24px;transition:.3s;letter-spacing:.1em;text-transform:uppercase}
+.back-to-cart:hover{color:#fff}
+.order-success{text-align:center;padding:60px 20px}
+.order-success i{font-size:4rem;color:#4caf50;margin-bottom:20px;display:block}
+.order-success h3{font-size:1.6rem;margin-bottom:12px;color:#fff}
+.order-success p{color:#ccc;margin-bottom:24px;line-height:1.7}
+
 /* ---------- About Page ---------- */
 .about-story{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;padding:80px 24px}
 .about-story img{border:1px solid var(--gold)}
