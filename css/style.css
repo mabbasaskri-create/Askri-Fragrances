@@ -196,7 +196,7 @@ h1,h2,h3,h4,h5,h6{font-family:var(--font-serif);font-weight:500;letter-spacing:.
 /* ---------- Collection Strip ---------- */
 .collections{background:#0a0a0a}
 .coll-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:24px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:24px;
 }
 .coll-card{
   position:relative;height:420px;overflow:hidden;cursor:pointer;

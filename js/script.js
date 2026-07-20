@@ -286,7 +286,7 @@ function initShop(){
   // Build category filters dynamically
   const catBox = $('#filter-cats');
   if(catBox){
-    const cats = ['Men','Women','Unisex','Arabic','French','Gift Sets'];
+    const cats = ['Men','Women','Unisex','Arabic'];
     catBox.innerHTML = cats.map(c => `
       <label><input type="checkbox" value="${c}" ${SHOP_STATE.cats.includes(c)?'checked':''}> ${c}</label>
     `).join('');

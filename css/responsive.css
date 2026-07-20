@@ -6,7 +6,7 @@
 @media (max-width:1200px){
   .products-grid{grid-template-columns:repeat(3,1fr)}
   .cat-grid{grid-template-columns:repeat(3,1fr)}
-  .coll-grid{grid-template-columns:repeat(3,1fr)}
+  .coll-grid{grid-template-columns:repeat(2,1fr)}
 }
 
 /* ---------- Tablet ---------- */
