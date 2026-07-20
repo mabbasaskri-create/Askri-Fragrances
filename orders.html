@@ -156,19 +156,22 @@
       renderOrders();
     }
 
-    function renderOrders(){
+    async function renderOrders(){
       const box=document.getElementById('orders-list');
-      const orders=JSON.parse(localStorage.getItem('askri_orders')||'[]');
-      const userOrders=orders.filter(o=>o.userEmail===user.email);
+      let userOrders=[];
+      try{
+        const snap=await db.collection('orders').where('userEmail','==',user.email||'').orderBy('createdAt','desc').get();
+        snap.forEach(doc=>userOrders.push(doc.data()));
+      }catch(e){
+        console.warn('Firestore orders read failed:',e);
+      }
       if(!userOrders.length){
         box.innerHTML=`<div class="orders-empty"><i class="fas fa-bag-shopping"></i><h3>No orders yet</h3><p>Start shopping and your orders will appear here.</p><a href="shop.html" class="btn">Browse Fragrances</a></div>`;
         return;
       }
       box.innerHTML=userOrders.map(o=>{
         const items=o.items.map(item=>{
-          const p=window.PRODUCTS.find(x=>x.id===item.id);
-          if(!p) return '';
-          return `<div class="order-item"><img src="${p.image}" alt="${p.name}"><div class="order-item-info"><h4>${p.name}</h4><p>${p.category} · ${p.size}</p><div class="item-price">Rs. ${(p.price*item.qty).toLocaleString()}</div></div></div>`;
+          return `<div class="order-item"><img src="${item.image||'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=800&q=80'}" alt="${item.name}"><div class="order-item-info"><h4>${item.name}</h4><p>${item.category||''} · ${item.size||''}</p><div class="item-price">Rs. ${(item.price*item.qty).toLocaleString()}</div></div></div>`;
         }).join('');
         return `<div class="order-card"><div class="order-top"><span class="order-id">${o.id}</span><span class="order-date">${o.date}</span></div><div class="order-items">${items}</div><div class="order-bottom"><span class="order-total">Total: Rs. ${o.total.toLocaleString()}</span><span class="order-status ${o.status}">${o.status.charAt(0).toUpperCase()+o.status.slice(1)}</span></div></div>`;
       }).join('');

@@ -523,7 +523,13 @@
 
     /* ---- Dashboard ---- */
     async function loadDashboard() {
-      const orders = JSON.parse(localStorage.getItem('askri_orders') || '[]');
+      let orders = [];
+      try {
+        const snap = await db.collection('orders').orderBy('createdAt', 'desc').get();
+        snap.forEach(doc => orders.push(doc.data()));
+      } catch(e) {
+        console.warn('Firestore orders read failed:', e);
+      }
       const users = JSON.parse(localStorage.getItem('askri_users') || '[]');
       let totalRevenue = 0;
       orders.forEach(o => totalRevenue += o.total || 0);
@@ -543,7 +549,7 @@
       if (!orders.length) {
         tbody.innerHTML = '<tr><td colspan="5" style="color:#555;text-align:center;padding:30px">No orders yet</td></tr>';
       } else {
-        tbody.innerHTML = orders.slice(-5).reverse().map(o =>
+        tbody.innerHTML = orders.slice(0, 5).map(o =>
           `<tr><td>${o.id}</td><td>${o.userName || 'Guest'}</td><td>Rs. ${(o.total||0).toLocaleString()}</td><td><span class="badge-status ${o.status||'pending'}">${(o.status||'pending').charAt(0).toUpperCase()+(o.status||'pending').slice(1)}</span></td><td>${o.date||''}</td></tr>`
         ).join('');
       }
@@ -733,20 +739,26 @@
     }
 
     /* ---- All Orders with status management ---- */
-    function loadAllOrders() {
-      const orders = JSON.parse(localStorage.getItem('askri_orders') || '[]');
+    async function loadAllOrders() {
+      let orders = [];
+      try {
+        const snap = await db.collection('orders').orderBy('createdAt', 'desc').get();
+        snap.forEach(doc => orders.push({ _docId: doc.id, ...doc.data() }));
+      } catch(e) {
+        console.warn('Firestore orders read failed:', e);
+      }
       const tbody = document.getElementById('all-orders-body');
       if (!orders.length) {
         tbody.innerHTML = '<tr><td colspan="6" style="color:#555;text-align:center;padding:30px">No orders yet</td></tr>';
       } else {
-        tbody.innerHTML = orders.map((o, i) =>
+        tbody.innerHTML = orders.map((o) =>
           `<tr>
             <td>${o.id}</td>
             <td>${o.userName||'Guest'}</td>
             <td style="color:var(--muted)">${o.userEmail||''}</td>
             <td>Rs. ${(o.total||0).toLocaleString()}</td>
             <td>
-              <select class="order-status-select" onchange="updateOrderStatus(${i}, this.value)">
+              <select class="order-status-select" onchange="updateOrderStatus('${o._docId||o.id}', this.value)">
                 <option value="pending" ${o.status==='pending'||!o.status?'selected':''}>Pending</option>
                 <option value="processing" ${o.status==='processing'?'selected':''}>Processing</option>
                 <option value="shipped" ${o.status==='shipped'?'selected':''}>Shipped</option>
@@ -759,12 +771,13 @@
       }
     }
 
-    function updateOrderStatus(index, newStatus) {
-      const orders = JSON.parse(localStorage.getItem('askri_orders') || '[]');
-      if (orders[index]) {
-        orders[index].status = newStatus;
-        localStorage.setItem('askri_orders', JSON.stringify(orders));
+    async function updateOrderStatus(docId, newStatus) {
+      try {
+        await db.collection('orders').doc(docId).update({ status: newStatus });
         showToast('Order status updated to ' + newStatus.charAt(0).toUpperCase() + newStatus.slice(1));
+      } catch(e) {
+        console.error('Failed to update order status:', e);
+        showToast('Failed to update status');
       }
     }
 

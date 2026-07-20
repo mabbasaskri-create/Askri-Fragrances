@@ -750,7 +750,7 @@ function validateCheckout(){
   }
   return valid;
 }
-function placeOrder(subtotal, total){
+async function placeOrder(subtotal, total){
   const cart = getCart();
   const name = $('#co-name').value.trim();
   const phone = $('#co-phone').value.trim();
@@ -763,13 +763,48 @@ function placeOrder(subtotal, total){
   const payment = isBankTransfer ? 'Bank Transfer (JazzCash)' : 'Cash on Delivery';
   const txnId = isBankTransfer ? ($('#co-txn-id')||{}).value||'' : '';
 
+  const items = [];
   let itemsList = '';
   cart.forEach(item => {
     const p = findProduct(item.id);
-    if(p) itemsList += `• ${p.name} (${p.size}) x${item.qty} — ${money(p.price * item.qty)}\n`;
+    if(p){
+      items.push({ id: p.id, name: p.name, size: p.size, price: p.price, qty: item.qty, image: p.image || '', category: p.category || '' });
+      itemsList += `• ${p.name} (${p.size}) x${item.qty} — ${money(p.price * item.qty)}\n`;
+    }
   });
 
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-PK') + ' ' + now.toLocaleTimeString('en-PK', {hour:'2-digit', minute:'2-digit'});
+  const orderId = 'ORD-' + now.getFullYear() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0') + '-' + String(Math.floor(Math.random()*9000)+1000);
+
+  const orderObj = {
+    id: orderId,
+    userName: name,
+    userPhone: phone,
+    userEmail: email || '',
+    address: address,
+    city: city,
+    province: province,
+    notes: notes || '',
+    payment: payment,
+    txnId: txnId || '',
+    items: items,
+    subtotal: subtotal,
+    shipping: subtotal > 15000 ? 0 : 250,
+    total: total,
+    status: 'pending',
+    date: dateStr,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  try {
+    await db.collection('orders').doc(orderId).set(orderObj);
+  } catch(e) {
+    console.error('Failed to save order to Firestore:', e);
+  }
+
   const msg = `🛍 *New Order — Askri Fragrances*\n\n` +
+    `🆔 *Order:* ${orderId}\n` +
     `👤 *Name:* ${name}\n` +
     `📞 *Phone:* ${phone}\n` +
     (email ? `📧 *Email:* ${email}\n` : '') +
@@ -787,7 +822,7 @@ function placeOrder(subtotal, total){
     <div class="order-success">
       <i class="fas fa-check-circle"></i>
       <h3>We will be packing your order soon!</h3>
-      <p>Thank you, ${name}! Your order has been received.</p>
+      <p>Thank you, ${name}! Your order <strong>${orderId}</strong> has been received.</p>
       ${isBankTransfer ? '<p style="margin-top:12px;color:#ff9800;font-size:.9rem"><i class="fas fa-clock"></i> Payment verification pending — we will verify your screenshot on WhatsApp.</p>' : ''}
       <a href="shop.html" class="btn btn-primary" style="margin-top:10px">Continue Shopping</a>
     </div>
