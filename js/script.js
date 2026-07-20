@@ -432,6 +432,13 @@ function renderProduct(){
   const rel = window.PRODUCTS.filter(x => x.category === p.category && x.id !== p.id).slice(0,4);
   $('#pd-related').innerHTML = rel.map(productCardHTML).join('');
   bindCardEvents();
+
+  // WhatsApp float — pre-fill product name + image
+  const waLink = $('#wa-float-link');
+  if(waLink){
+    const msg = `Hi! I want to order *${p.name}*\n\nProduct Image: ${p.image}`;
+    waLink.href = `https://wa.me/923256646684?text=${encodeURIComponent(msg)}`;
+  }
 }
 
 /* ---------- Cart page ---------- */
