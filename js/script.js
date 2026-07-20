@@ -669,34 +669,37 @@ function selectPayment(el){
   if(panel) panel.style.display = selectedPayment === 'online' ? 'block' : 'none';
 }
 let screenshotDataUrl = null;
-let screenshotVerified = false;
+let screenshotReady = false;
 function handleScreenshot(input){
   if(!input.files || !input.files[0]) return;
   const file = input.files[0];
   if(file.size > 5*1024*1024){ showToast('File too large. Max 5MB.'); return; }
+  if(!file.type.startsWith('image/')){ showToast('Please upload an image file.'); return; }
   const reader = new FileReader();
   reader.onload = function(e){
     screenshotDataUrl = e.target.result;
     $('#preview-img').src = screenshotDataUrl;
     $('#upload-placeholder').style.display = 'none';
     $('#upload-preview').style.display = 'flex';
-    checkPaymentVerification();
+    checkPaymentReady();
   };
   reader.readAsDataURL(file);
 }
 function removeScreenshot(){
   screenshotDataUrl = null;
-  screenshotVerified = false;
+  screenshotReady = false;
   $('#co-screenshot').value = '';
   $('#upload-placeholder').style.display = 'flex';
   $('#upload-preview').style.display = 'none';
-  $('#screenshot-error').style.display = 'block';
-  $('#screenshot-error').textContent = 'Upload screenshot + enter your JazzCash number & Transaction ID to verify';
+  const errEl = $('#screenshot-error');
+  errEl.style.display = 'block';
+  errEl.textContent = 'Upload JazzCash receipt screenshot + enter your number & Transaction ID';
+  errEl.className = 'form-error';
   const status = $('#upload-status');
-  status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+  status.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Screenshot uploaded';
   status.className = 'upload-status';
 }
-function checkPaymentVerification(){
+function checkPaymentReady(){
   if(!screenshotDataUrl) return;
   const senderPhone = ($('#co-sender-phone')||{}).value||'';
   const txnId = ($('#co-txn-id')||{}).value||'';
@@ -705,26 +708,26 @@ function checkPaymentVerification(){
   const phoneOk = /^03\d{9}$/.test(senderPhone.replace(/\s/g,''));
   const txnOk = txnId.trim().length >= 4;
   if(phoneOk && txnOk){
-    screenshotVerified = true;
-    status.innerHTML = '<i class="fas fa-check-circle"></i> Payment Verified';
-    status.className = 'upload-status verified';
+    screenshotReady = true;
+    status.innerHTML = '<i class="fas fa-clock"></i> Ready — Will verify on WhatsApp';
+    status.className = 'upload-status pending';
     errEl.style.display = 'none';
   } else {
-    screenshotVerified = false;
-    status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Waiting for details...';
+    screenshotReady = false;
+    status.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Screenshot uploaded';
     status.className = 'upload-status';
     errEl.style.display = 'block';
-    let msg = 'Upload screenshot';
-    if(!phoneOk) msg += ' + enter JazzCash number';
-    if(!txnOk) msg += ' + enter Transaction ID';
-    errEl.textContent = msg;
+    let parts = [];
+    if(!phoneOk) parts.push('enter JazzCash number');
+    if(!txnOk) parts.push('enter Transaction ID');
+    errEl.textContent = 'Also ' + parts.join(' & ');
   }
 }
 function bindPaymentListeners(){
   const sp = $('#co-sender-phone');
   const ti = $('#co-txn-id');
-  if(sp) sp.addEventListener('input', checkPaymentVerification);
-  if(ti) ti.addEventListener('input', checkPaymentVerification);
+  if(sp) sp.addEventListener('input', checkPaymentReady);
+  if(ti) ti.addEventListener('input', checkPaymentReady);
 }
 function validateCheckout(){
   let valid = true;
@@ -747,13 +750,13 @@ function validateCheckout(){
     const txnEl = $('#co-txn-id');
     const phoneOk = /^03\d{9}$/.test((senderEl.value||'').replace(/\s/g,''));
     const txnOk = (txnEl.value||'').trim().length >= 4;
-    if(!screenshotDataUrl || !phoneOk || !txnOk){
+    if(!screenshotDataUrl || !screenshotReady){
       valid = false;
       if(senderEl && !phoneOk) senderEl.closest('.form-group').classList.add('error');
       if(txnEl && !txnOk) txnEl.closest('.form-group').classList.add('error');
       if(!screenshotDataUrl){
         errEl.style.display = 'block';
-        errEl.textContent = 'Upload screenshot + enter your JazzCash number & Transaction ID to verify';
+        errEl.textContent = 'Upload JazzCash receipt screenshot + enter your number & Transaction ID';
       }
     } else {
       if(senderEl) senderEl.closest('.form-group').classList.remove('error');
@@ -794,7 +797,7 @@ function placeOrder(subtotal, total){
     `🚚 *Shipping:* ${subtotal > 15000 ? 'Free' : 'Rs. 250'}\n` +
     `💰 *Total:* ${money(total)}\n` +
     (notes ? `\n📝 *Notes:* ${notes}` : '') +
-    (isBankTransfer ? `\n\n✅ *Payment screenshot uploaded as proof*` : '');
+    (isBankTransfer ? `\n\n⏳ *Payment verification pending — check screenshot attached*` : '');
 
   const box = $('#cart-content');
   box.innerHTML = `
@@ -802,7 +805,7 @@ function placeOrder(subtotal, total){
       <i class="fas fa-check-circle"></i>
       <h3>Order Placed Successfully!</h3>
       <p>Thank you, ${name}! Your order has been received.<br>We will contact you shortly to confirm.</p>
-      ${isBankTransfer ? '<p style="margin-top:12px;color:var(--gold);font-size:.9rem"><i class="fas fa-info-circle"></i> Your payment screenshot has been sent for verification.</p>' : ''}
+      ${isBankTransfer ? '<p style="margin-top:12px;color:#ff9800;font-size:.9rem"><i class="fas fa-clock"></i> Payment verification pending — we will verify your screenshot on WhatsApp.</p>' : ''}
       <a href="shop.html" class="btn btn-primary" style="margin-top:10px">Continue Shopping</a>
     </div>
   `;

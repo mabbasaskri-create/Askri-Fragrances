@@ -655,6 +655,7 @@ footer{
 .upload-preview img{width:80px;height:80px;object-fit:cover;border:1px solid var(--border);border-radius:4px}
 .upload-status{font-size:.85rem;display:flex;align-items:center;gap:8px;color:#ccc}
 .upload-status.verified{color:#4caf50;font-weight:600}
+.upload-status.pending{color:#ff9800;font-weight:600}
 .upload-remove{position:absolute;top:10px;right:10px;background:none;border:none;color:#c94b4b;cursor:pointer;font-size:1rem;transition:.3s}
 .upload-remove:hover{color:#fff}
 #screenshot-error{display:none;color:#c94b4b;font-size:.72rem;margin-top:6px}
