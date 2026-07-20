@@ -638,6 +638,27 @@ footer{
 .order-success h3{font-size:1.6rem;margin-bottom:12px;color:#fff}
 .order-success p{color:#ccc;margin-bottom:24px;line-height:1.7}
 
+/* ---------- Bank Transfer Panel ---------- */
+.bank-details{background:#0a0a0a;border:1px solid var(--border);padding:20px;margin-top:16px}
+.bank-details-header{font-size:1rem;font-weight:600;color:var(--gold);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.bank-details-header i{font-size:1.2rem}
+.bank-detail-row{display:flex;justify-content:space-between;padding:10px 0;align-items:center}
+.bank-detail-row .bd-label{color:#888;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase}
+.bank-detail-row .bd-value{color:#fff;font-size:1.1rem;font-weight:600;letter-spacing:.05em}
+.upload-box{border:2px dashed var(--border);background:#0a0a0a;transition:.3s;position:relative;overflow:hidden}
+.upload-box:hover{border-color:var(--gold)}
+.upload-placeholder{padding:40px 20px;text-align:center;cursor:pointer}
+.upload-placeholder i{font-size:2.5rem;color:var(--gold);margin-bottom:12px;display:block}
+.upload-placeholder p{color:#ccc;font-size:.9rem;margin-bottom:6px}
+.upload-placeholder span{color:#666;font-size:.75rem}
+.upload-preview{padding:16px;display:flex;align-items:center;gap:16px;position:relative}
+.upload-preview img{width:80px;height:80px;object-fit:cover;border:1px solid var(--border);border-radius:4px}
+.upload-status{font-size:.85rem;display:flex;align-items:center;gap:8px;color:#ccc}
+.upload-status.verified{color:#4caf50;font-weight:600}
+.upload-remove{position:absolute;top:10px;right:10px;background:none;border:none;color:#c94b4b;cursor:pointer;font-size:1rem;transition:.3s}
+.upload-remove:hover{color:#fff}
+#screenshot-error{display:none;color:#c94b4b;font-size:.72rem;margin-top:6px}
+
 /* ---------- About Page ---------- */
 .about-story{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;padding:80px 24px}
 .about-story img{border:1px solid var(--gold)}

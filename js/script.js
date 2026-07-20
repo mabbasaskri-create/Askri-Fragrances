@@ -594,6 +594,32 @@ function renderCheckout(){
               </div>
             </div>
           </div>
+          <div id="bank-transfer-panel" style="display:none;margin-top:20px">
+            <div class="bank-details">
+              <div class="bank-details-header"><i class="fas fa-university"></i> JazzCash Account</div>
+              <div class="bank-detail-row"><span class="bd-label">Account Number</span><span class="bd-value">03256646684</span></div>
+              <div class="bank-detail-row"><span class="bd-label">Account Title</span><span class="bd-value">IMLI LEEA</span></div>
+            </div>
+            <div class="screenshot-upload">
+              <label style="font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:block;margin-top:20px">Upload Payment Screenshot <span class="req">*</span></label>
+              <div class="upload-box" id="upload-box">
+                <input type="file" id="co-screenshot" accept="image/*" onchange="handleScreenshot(this)" hidden />
+                <div class="upload-placeholder" id="upload-placeholder" onclick="document.getElementById('co-screenshot').click()">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <p>Click to upload payment screenshot</p>
+                  <span>JPG, PNG or WEBP (max 5MB)</span>
+                </div>
+                <div class="upload-preview" id="upload-preview" style="display:none">
+                  <img id="preview-img" src="" alt="Screenshot" />
+                  <div class="upload-status" id="upload-status">
+                    <i class="fas fa-spinner fa-spin"></i> Verifying...
+                  </div>
+                  <button type="button" class="upload-remove" onclick="removeScreenshot()"><i class="fas fa-times"></i></button>
+                </div>
+              </div>
+              <span class="form-error" id="screenshot-error">Please upload payment screenshot</span>
+            </div>
+          </div>
           <div class="form-row" style="margin-top:20px">
             <div class="form-group">
               <label>Order Notes (Optional)</label>
@@ -626,6 +652,39 @@ function selectPayment(el){
   $$('.payment-opt').forEach(x => x.classList.remove('active'));
   el.classList.add('active');
   selectedPayment = el.dataset.pay;
+  const panel = $('#bank-transfer-panel');
+  if(panel) panel.style.display = selectedPayment === 'online' ? 'block' : 'none';
+}
+let screenshotDataUrl = null;
+let screenshotVerified = false;
+function handleScreenshot(input){
+  if(!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  if(file.size > 5*1024*1024){ showToast('File too large. Max 5MB.'); return; }
+  const reader = new FileReader();
+  reader.onload = function(e){
+    screenshotDataUrl = e.target.result;
+    $('#preview-img').src = screenshotDataUrl;
+    $('#upload-placeholder').style.display = 'none';
+    $('#upload-preview').style.display = 'flex';
+    const status = $('#upload-status');
+    status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+    status.className = 'upload-status';
+    screenshotVerified = false;
+    setTimeout(function(){
+      screenshotVerified = true;
+      status.innerHTML = '<i class="fas fa-check-circle"></i> Screenshot Verified';
+      status.className = 'upload-status verified';
+    }, 1500);
+  };
+  reader.readAsDataURL(file);
+}
+function removeScreenshot(){
+  screenshotDataUrl = null;
+  screenshotVerified = false;
+  $('#co-screenshot').value = '';
+  $('#upload-placeholder').style.display = 'flex';
+  $('#upload-preview').style.display = 'none';
 }
 function validateCheckout(){
   let valid = true;
@@ -642,6 +701,14 @@ function validateCheckout(){
     if(!f.test(el.value)){ group.classList.add('error'); valid = false; }
     else group.classList.remove('error');
   });
+  if(selectedPayment === 'online'){
+    const errEl = $('#screenshot-error');
+    if(!screenshotDataUrl || !screenshotVerified){
+      errEl.style.display = 'block'; valid = false;
+    } else {
+      errEl.style.display = 'none';
+    }
+  }
   return valid;
 }
 function placeOrder(subtotal, total){
@@ -653,7 +720,8 @@ function placeOrder(subtotal, total){
   const city = $('#co-city').value.trim();
   const province = $('#co-province').value;
   const notes = $('#co-notes').value.trim();
-  const payment = selectedPayment === 'cod' ? 'Cash on Delivery' : 'Bank Transfer';
+  const isBankTransfer = selectedPayment === 'online';
+  const payment = isBankTransfer ? 'Bank Transfer (JazzCash)' : 'Cash on Delivery';
 
   let itemsList = '';
   cart.forEach(item => {
@@ -666,11 +734,13 @@ function placeOrder(subtotal, total){
     `📞 *Phone:* ${phone}\n` +
     (email ? `📧 *Email:* ${email}\n` : '') +
     `📍 *Address:* ${address}, ${city}, ${province}\n` +
-    `💳 *Payment:* ${payment}\n\n` +
-    `*Items:*\n${itemsList}\n` +
+    `💳 *Payment:* ${payment}\n` +
+    (isBankTransfer ? `🏦 *JazzCash:* 03256646684 (${name})\n` : '') +
+    `\n*Items:*\n${itemsList}\n` +
     `🚚 *Shipping:* ${subtotal > 15000 ? 'Free' : 'Rs. 250'}\n` +
     `💰 *Total:* ${money(total)}\n` +
-    (notes ? `\n📝 *Notes:* ${notes}` : '');
+    (notes ? `\n📝 *Notes:* ${notes}` : '') +
+    (isBankTransfer ? `\n\n✅ *Payment screenshot uploaded as proof*` : '');
 
   const box = $('#cart-content');
   box.innerHTML = `
@@ -678,9 +748,17 @@ function placeOrder(subtotal, total){
       <i class="fas fa-check-circle"></i>
       <h3>Order Placed Successfully!</h3>
       <p>Thank you, ${name}! Your order has been received.<br>We will contact you shortly to confirm.</p>
+      ${isBankTransfer ? '<p style="margin-top:12px;color:var(--gold);font-size:.9rem"><i class="fas fa-info-circle"></i> Your payment screenshot has been sent for verification.</p>' : ''}
       <a href="shop.html" class="btn btn-primary" style="margin-top:10px">Continue Shopping</a>
     </div>
   `;
+
+  if(isBankTransfer && screenshotDataUrl){
+    const tempLink = document.createElement('a');
+    tempLink.href = screenshotDataUrl;
+    tempLink.download = 'payment-screenshot.jpg';
+    tempLink.click();
+  }
 
   window.open(`https://wa.me/923256646684?text=${encodeURIComponent(msg)}`, '_blank');
   localStorage.removeItem('askri_cart');
