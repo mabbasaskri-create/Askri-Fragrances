@@ -4,86 +4,126 @@
    =========================================== */
 
 const IMG = [
+  // 0-1: Nuit Doré — Men, evening gold, saffron + oud
   'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-_3cLB_mvVTw?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1770301410072-f6ef6dad65b2?auto=format&fit=crop&w=800&q=80',
+  // 2-3: Rose Imperial — Women, Turkish rose
   'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-kge3AMsSIYc?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1771990770592-2fea44c43617?auto=format&fit=crop&w=800&q=80',
+  // 4-5: Oud Noir — Arabic, dark oud
   'https://images.unsplash.com/photo-1605463967516-b73a52062ab0?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-rJ5V8qAOQc0?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1731972206777-d9f796597a60?auto=format&fit=crop&w=800&q=80',
+  // 6-7: Blanc Éternel — Women, white floral
   'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-TdgObg0snOA?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-3PDQa7TLBaQ?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-mQyvlrya4Ss?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-_SgPIoMwOZE?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-CBWlviETqJU?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-ipejCsOQ4lE?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-uf_-jwq9xoU?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-a5917t2ea8I?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-AOope3LPsJk?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-itk8wtuPRfc?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-E8jLkSrp4kQ?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-yf3nAu4ce94?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-273R7b8LDfE?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-rXFwio30yDw?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-2x5F8pD7T5Q?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-tuDyhX6Hh1I?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-4BgXng_ZGGo?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-aWEnLrHGu0M?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-aEl6VSliO8M?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-cpisiUDKAqE?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-o3NwwZErZ8k?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-2elnx4tTjy8?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-wHOIuHLTIb4?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-N1iVYhfjB-Y?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-mhxjuT11W5o?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-5dwDZJTICEc?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-A--QSTpmWKo?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-glh1YrYLkcY?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-nErXDQGI_CU?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-7jmezYtOlKg?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-MoPGCgHPS6I?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-arui-GR8JXo?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-coi2fv2YUAc?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-mq73cWf9ZAQ?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-xnYA4CCFSII?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-lDEfqoIGDuY?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-2gQHFRGLgpA?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1594913615593-e4b8c44625be?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-s4q4QjPAXMw?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1763631403216-8d193008481e?auto=format&fit=crop&w=800&q=80',
+  // 8-9: Ambre Sultan — Unisex, golden amber
+  'https://images.unsplash.com/photo-1733660227168-444e3c751a1e?auto=format&fit=crop&w=800&q=80',
   'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1712995518345-e6f807d4b6ad?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80',
+  // 10-11: Mystique Rouge — Women, spicy red
   'https://images.unsplash.com/photo-1615634260167-c8cdede054de?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1610461888750-10bfc601b874?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1759793499819-bf60128a54b4?auto=format&fit=crop&w=800&q=80',
+  // 12-13: Velours d'Or — Men, tobacco leather
   'https://images.unsplash.com/photo-1609749282774-5883a366cdd1?auto=format&fit=crop&w=800&q=80',
   'https://images.unsplash.com/photo-1563170351-be82bc888aa4?auto=format&fit=crop&w=800&q=80',
+  // 14-15: Amber Reign — Unisex, amber neroli
+  'https://images.unsplash.com/photo-1706954668876-44410ebbbfa8?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1587017539504-67cfbddac569?auto=format&fit=crop&w=800&q=80',
+  // 16-17: Saffron Kingdom — Arabic, luxury saffron oud
+  'https://images.unsplash.com/photo-1683401100111-40306e381429?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1774682060910-ba9a26f958ad?auto=format&fit=crop&w=800&q=80',
+  // 18-19: Iris Céleste — Women, powdery iris
+  'https://images.unsplash.com/photo-1768025719875-48ed072f3084?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1739190940453-20900e9d18fb?auto=format&fit=crop&w=800&q=80',
+  // 20-21: Musk Royal — Unisex, clean musk
+  'https://images.unsplash.com/photo-1733966319471-64d4883584c4?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1458538977777-0549b2370168?auto=format&fit=crop&w=800&q=80',
+  // 22-23: Vanille Sacrée — Women, dark vanilla incense
+  'https://images.unsplash.com/photo-1775639698865-8621fbccb000?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1700522360590-a913ff2a3d9f?auto=format&fit=crop&w=800&q=80',
+  // 24-25: Tobacco Vanille — Men, warm tobacco
+  'https://images.unsplash.com/photo-1773527142301-9aa77252e5c2?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=800&q=80',
+  // 26-27: Fleur du Désert — Arabic, desert jasmine
+  'https://images.unsplash.com/photo-1644751386117-754fcce625f6?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1612817159949-195b6eb9e31a?auto=format&fit=crop&w=800&q=80',
+  // 28-29: Bois Précieux — Men, precious woods
+  'https://images.unsplash.com/photo-1747915725522-cc1dc4b6d809?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80',
+  // 30-31: Cuir Noble — Men, noble leather
+  'https://images.unsplash.com/photo-1708167243118-59fae90f1f55?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1619405399517-d7fce0f13302?auto=format&fit=crop&w=800&q=80',
+  // 32-33: Encens Divin — Arabic, sacred incense
+  'https://images.unsplash.com/photo-1733716047328-898391fb4b57?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1767187861728-942f561b7103?auto=format&fit=crop&w=800&q=80',
+  // 34-35: Jasmin de Nuit — Women, night jasmine
+  'https://images.unsplash.com/photo-1760920248537-c1185bbc5c61?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1774682060992-46c7e9f2e50b?auto=format&fit=crop&w=800&q=80',
+  // 36-37: Rose du Sultan — Arabic, Damascus rose + oud
+  'https://images.unsplash.com/photo-1594913615593-e4b8c44625be?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?auto=format&fit=crop&w=800&q=80',
+  // 38-39: Oud Al Malik — Arabic, king oud
+  'https://images.unsplash.com/photo-1610461888750-10bfc601b874?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1712995518345-e6f807d4b6ad?auto=format&fit=crop&w=800&q=80',
+  // 40-41: Attar Blanc — Unisex, pure attar
+  'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80',
+  // 42-43: Bergamote Impériale — Men, fresh bergamot
+  'https://images.unsplash.com/photo-1740327123574-05b0efdec29f?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?auto=format&fit=crop&w=800&q=80',
+  // 44-45: Cèdre Sacré — Men, sacred cedar
+  'https://images.unsplash.com/photo-1737916061048-5a288b8e9f26?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1747915725522-cc1dc4b6d809?auto=format&fit=crop&w=800&q=80',
+  // 46-47: Musk Al Haramain — Unisex, sacred musk
+  'https://images.unsplash.com/photo-1594913615593-e4b8c44625be?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1712995518345-e6f807d4b6ad?auto=format&fit=crop&w=800&q=80',
+  // 48-49: Ambre Persan — Unisex, Persian amber
+  'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80',
+  // 50-51: Fleur d'Orient — Women, oriental floral
+  'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1615634260167-c8cdede054de?auto=format&fit=crop&w=800&q=80',
+  // 52-53: Nuit Sultane — Women, dark sultan night
   'https://images.unsplash.com/photo-1706954668876-44410ebbbfa8?auto=format&fit=crop&w=800&q=80',
   'https://images.unsplash.com/photo-1683401100111-40306e381429?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1708167243118-59fae90f1f55?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1733716047328-898391fb4b57?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1768025719875-48ed072f3084?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1774682060910-ba9a26f958ad?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1733966319471-64d4883584c4?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1775639698865-8621fbccb000?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1763631403216-8d193008481e?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1739190940453-20900e9d18fb?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com-photo-1700522360590-a913ff2a3d9f?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1773527142301-9aa77252e5c2?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1767187861728-942f561b7103?auto=format&fit=crop&w=800&q=80',
+  // 54-55: Rose Éternelle — Women, eternal rose
+  'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80',
   'https://images.unsplash.com/photo-1771990770592-2fea44c43617?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1759793499819-bf60128a54b4?auto=format&fit=crop&w=800&q=80',
+  // 56-57: Oud Diamant — Arabic, diamond oud
+  'https://images.unsplash.com/photo-1775639698865-8621fbccb000?auto=format&fit=crop&w=800&q=80',
   'https://images.unsplash.com/photo-1731972206777-d9f796597a60?auto=format&fit=crop&w=800&q=80',
+  // 58-59: Sable d'Or — Unisex, golden sand
   'https://images.unsplash.com/photo-1760920248537-c1185bbc5c61?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1737916061048-5a288b8e9f26?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1774682060992-46c7e9f2e50b?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1740327123574-05b0efdec29f?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1587017539504-67cfbddac569?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1612817159949-195b6eb9e31a?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1619405399517-d7fce0f13302?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1739190940453-20900e9d18fb?auto=format&fit=crop&w=800&q=80',
+  // 60-61: Vanille Noire — Unisex, dark vanilla
+  'https://images.unsplash.com/photo-1774682060910-ba9a26f958ad?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1700522360590-a913ff2a3d9f?auto=format&fit=crop&w=800&q=80',
+  // 62-63: Jasmin Impérial — Women, imperial jasmine
+  'https://images.unsplash.com/photo-1610461888750-10bfc601b874?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80',
+  // 64-65: Bois de Rose — Unisex, rose + wood
+  'https://images.unsplash.com/photo-1594913615593-e4b8c44625be?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1609749282774-5883a366cdd1?auto=format&fit=crop&w=800&q=80',
+  // 66-67: Ambre Céleste — Unisex, celestial amber
+  'https://images.unsplash.com/photo-1733716047328-898391fb4b57?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1773527142301-9aa77252e5c2?auto=format&fit=crop&w=800&q=80',
+  // 68-69: Musc Royal — Men, royal masculine musk
+  'https://images.unsplash.com/photo-1747915725522-cc1dc4b6d809?auto=format&fit=crop&w=800&q=80',
   'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80',
+  // 70-71: Oud Suprême — Arabic, supreme oud
+  'https://images.unsplash.com/photo-1759793499819-bf60128a54b4?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1774682060992-46c7e9f2e50b?auto=format&fit=crop&w=800&q=80',
+  // 72-73: Fleur Sauvage — Women, wild flowers
+  'https://images.unsplash.com/photo-1740327123574-05b0efdec29f?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1458538977777-0549b2370168?auto=format&fit=crop&w=800&q=80',
+  // 74-75: Nuit Étoilée — Unisex, starlit night
+  'https://images.unsplash.com/photo-1767187861728-942f561b7103?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1619405399517-d7fce0f13302?auto=format&fit=crop&w=800&q=80',
+  // 76-77: Rose Antique — Women, antique rose
+  'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1563170351-be82bc888aa4?auto=format&fit=crop&w=800&q=80',
+  // 78-79: Ambre Ancien — Unisex, ancient amber
+  'https://images.unsplash.com/photo-1768025719875-48ed072f3084?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1733660227168-444e3c751a1e?auto=format&fit=crop&w=800&q=80',
 ];
 
 const INGREDIENTS = 'Alcohol Denat., Parfum (Fragrance), Aqua (Water), Limonene, Linalool, Citral, Geraniol, Coumarin, Eugenol, Benzyl Benzoate, Citronellol, Farnesol, Isoeugenol.';
