@@ -5,7 +5,7 @@
 /* ---------- Large screens ---------- */
 @media (max-width:1200px){
   .products-grid{grid-template-columns:repeat(3,1fr)}
-  .cat-grid{grid-template-columns:repeat(3,1fr)}
+  .cat-grid{grid-template-columns:repeat(4,1fr);gap:24px}
   .coll-grid{grid-template-columns:repeat(2,1fr)}
 }
 
@@ -24,7 +24,7 @@
   .products-grid{grid-template-columns:repeat(3,1fr)}
   .coll-grid{grid-template-columns:1fr;gap:16px}
   .coll-card{height:280px}
-  .cat-grid{grid-template-columns:repeat(3,1fr)}
+  .cat-grid{grid-template-columns:repeat(2,1fr);gap:20px}
   .footer-grid{grid-template-columns:1fr 1fr;gap:32px}
   .counter-grid{grid-template-columns:repeat(2,1fr);gap:32px}
   .about-story,.contact-wrap,.product-detail{grid-template-columns:1fr;gap:32px}
