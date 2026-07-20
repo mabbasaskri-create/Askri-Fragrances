@@ -617,8 +617,20 @@ function renderCheckout(){
                   <button type="button" class="upload-remove" onclick="removeScreenshot()"><i class="fas fa-times"></i></button>
                 </div>
               </div>
-              <span class="form-error" id="screenshot-error">Please upload payment screenshot</span>
             </div>
+            <div class="form-row cols-2" style="margin-top:20px">
+              <div class="form-group">
+                <label>Your JazzCash Number <span class="req">*</span></label>
+                <input type="tel" id="co-sender-phone" placeholder="Number you paid from" />
+                <span class="form-error">Enter the JazzCash number you paid from</span>
+              </div>
+              <div class="form-group">
+                <label>Transaction ID <span class="req">*</span></label>
+                <input type="text" id="co-txn-id" placeholder="e.g. 1234567890" />
+                <span class="form-error">Enter transaction ID from JazzCash SMS</span>
+              </div>
+            </div>
+            <span class="form-error" id="screenshot-error" style="margin-top:8px;display:block">Upload screenshot + enter your JazzCash number & Transaction ID to verify</span>
           </div>
           <div class="form-row" style="margin-top:20px">
             <div class="form-group">
@@ -647,6 +659,7 @@ function renderCheckout(){
     if(!validateCheckout()) return;
     placeOrder(subtotal, total);
   });
+  bindPaymentListeners();
 }
 function selectPayment(el){
   $$('.payment-opt').forEach(x => x.classList.remove('active'));
@@ -667,15 +680,7 @@ function handleScreenshot(input){
     $('#preview-img').src = screenshotDataUrl;
     $('#upload-placeholder').style.display = 'none';
     $('#upload-preview').style.display = 'flex';
-    const status = $('#upload-status');
-    status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-    status.className = 'upload-status';
-    screenshotVerified = false;
-    setTimeout(function(){
-      screenshotVerified = true;
-      status.innerHTML = '<i class="fas fa-check-circle"></i> Screenshot Verified';
-      status.className = 'upload-status verified';
-    }, 1500);
+    checkPaymentVerification();
   };
   reader.readAsDataURL(file);
 }
@@ -685,6 +690,41 @@ function removeScreenshot(){
   $('#co-screenshot').value = '';
   $('#upload-placeholder').style.display = 'flex';
   $('#upload-preview').style.display = 'none';
+  $('#screenshot-error').style.display = 'block';
+  $('#screenshot-error').textContent = 'Upload screenshot + enter your JazzCash number & Transaction ID to verify';
+  const status = $('#upload-status');
+  status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+  status.className = 'upload-status';
+}
+function checkPaymentVerification(){
+  if(!screenshotDataUrl) return;
+  const senderPhone = ($('#co-sender-phone')||{}).value||'';
+  const txnId = ($('#co-txn-id')||{}).value||'';
+  const status = $('#upload-status');
+  const errEl = $('#screenshot-error');
+  const phoneOk = /^03\d{9}$/.test(senderPhone.replace(/\s/g,''));
+  const txnOk = txnId.trim().length >= 4;
+  if(phoneOk && txnOk){
+    screenshotVerified = true;
+    status.innerHTML = '<i class="fas fa-check-circle"></i> Payment Verified';
+    status.className = 'upload-status verified';
+    errEl.style.display = 'none';
+  } else {
+    screenshotVerified = false;
+    status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Waiting for details...';
+    status.className = 'upload-status';
+    errEl.style.display = 'block';
+    let msg = 'Upload screenshot';
+    if(!phoneOk) msg += ' + enter JazzCash number';
+    if(!txnOk) msg += ' + enter Transaction ID';
+    errEl.textContent = msg;
+  }
+}
+function bindPaymentListeners(){
+  const sp = $('#co-sender-phone');
+  const ti = $('#co-txn-id');
+  if(sp) sp.addEventListener('input', checkPaymentVerification);
+  if(ti) ti.addEventListener('input', checkPaymentVerification);
 }
 function validateCheckout(){
   let valid = true;
@@ -703,9 +743,21 @@ function validateCheckout(){
   });
   if(selectedPayment === 'online'){
     const errEl = $('#screenshot-error');
-    if(!screenshotDataUrl || !screenshotVerified){
-      errEl.style.display = 'block'; valid = false;
+    const senderEl = $('#co-sender-phone');
+    const txnEl = $('#co-txn-id');
+    const phoneOk = /^03\d{9}$/.test((senderEl.value||'').replace(/\s/g,''));
+    const txnOk = (txnEl.value||'').trim().length >= 4;
+    if(!screenshotDataUrl || !phoneOk || !txnOk){
+      valid = false;
+      if(senderEl && !phoneOk) senderEl.closest('.form-group').classList.add('error');
+      if(txnEl && !txnOk) txnEl.closest('.form-group').classList.add('error');
+      if(!screenshotDataUrl){
+        errEl.style.display = 'block';
+        errEl.textContent = 'Upload screenshot + enter your JazzCash number & Transaction ID to verify';
+      }
     } else {
+      if(senderEl) senderEl.closest('.form-group').classList.remove('error');
+      if(txnEl) txnEl.closest('.form-group').classList.remove('error');
       errEl.style.display = 'none';
     }
   }
@@ -722,6 +774,8 @@ function placeOrder(subtotal, total){
   const notes = $('#co-notes').value.trim();
   const isBankTransfer = selectedPayment === 'online';
   const payment = isBankTransfer ? 'Bank Transfer (JazzCash)' : 'Cash on Delivery';
+  const senderPhone = isBankTransfer ? ($('#co-sender-phone')||{}).value||'' : '';
+  const txnId = isBankTransfer ? ($('#co-txn-id')||{}).value||'' : '';
 
   let itemsList = '';
   cart.forEach(item => {
@@ -735,7 +789,7 @@ function placeOrder(subtotal, total){
     (email ? `📧 *Email:* ${email}\n` : '') +
     `📍 *Address:* ${address}, ${city}, ${province}\n` +
     `💳 *Payment:* ${payment}\n` +
-    (isBankTransfer ? `🏦 *JazzCash:* 03256646684 (${name})\n` : '') +
+    (isBankTransfer ? `🏦 *JazzCash:* 03256646684 (IMLI LEEA)\n📞 *Paid From:* ${senderPhone}\n🆔 *Txn ID:* ${txnId}\n` : '') +
     `\n*Items:*\n${itemsList}\n` +
     `🚚 *Shipping:* ${subtotal > 15000 ? 'Free' : 'Rs. 250'}\n` +
     `💰 *Total:* ${money(total)}\n` +
