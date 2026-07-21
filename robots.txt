@@ -3,4 +3,4 @@ Allow: /
 Disallow: /cart.html
 Disallow: /wishlist.html
 
-Sitemap: /sitemap.xml
+Sitemap: https://askri-fragrances.vercel.app/sitemap.xml
