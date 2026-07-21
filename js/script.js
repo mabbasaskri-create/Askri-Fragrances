@@ -877,6 +877,79 @@ function renderWishlist(){
   $$('[data-wremove]').forEach(el => el.addEventListener('click', () => removeFromWishlist(Number(el.dataset.wremove))));
 }
 
+/* ---------- Scroll Reveal Animations ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  // Auto-add reveal classes to common elements
+  $$('.section-title').forEach(el => el.classList.add('reveal'));
+  $$('.coll-card').forEach(el => el.classList.add('reveal'));
+  $$('.cat-card').forEach(el => el.classList.add('reveal'));
+  $$('.mv-card').forEach(el => el.classList.add('reveal'));
+  $$('.faq-list').forEach(el => el.classList.add('reveal'));
+  $$('.newsletter').forEach(el => el.classList.add('reveal'));
+  $$('.testimonial-slider').forEach(el => el.classList.add('reveal-scale'));
+  $$('.counter-item').forEach(el => el.classList.add('reveal'));
+  $$('.banner-strip').forEach(el => el.classList.add('reveal'));
+
+  // Add stagger class to product grids
+  $$('.products-grid').forEach(el => el.classList.add('stagger-children'));
+  $$('.coll-grid').forEach(el => el.classList.add('stagger-children'));
+  $$('.cat-grid').forEach(el => el.classList.add('stagger-children'));
+  $$('.mv-grid').forEach(el => el.classList.add('stagger-children'));
+  $$('.counter-grid').forEach(el => el.classList.add('stagger-children'));
+
+  // About page sections
+  $$('.about-story').forEach(el => { el.children[0]?.classList.add('reveal-left'); el.children[1]?.classList.add('reveal-right'); });
+  $$('.contact-wrap').forEach(el => { el.children[0]?.classList.add('reveal-left'); el.children[1]?.classList.add('reveal-right'); });
+
+  // IntersectionObserver for reveal
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach(en => {
+      if(en.isIntersecting){
+        en.target.classList.add('revealed');
+        revealObs.unobserve(en.target);
+      }
+    });
+  }, {threshold: 0.12, rootMargin: '0px 0px -40px 0px'});
+
+  $$('[class*="reveal"]').forEach(el => revealObs.observe(el));
+
+  // Image fade-in on load
+  $$('img').forEach(img => {
+    if(img.complete){ img.classList.add('loaded'); }
+    else { img.addEventListener('load', () => img.classList.add('loaded'), {once:true}); img.addEventListener('error', () => img.classList.add('loaded'), {once:true}); }
+  });
+
+  // Re-observe after dynamic content (products load)
+  window.addEventListener('products-loaded', () => {
+    setTimeout(() => {
+      $$('.products-grid').forEach(el => el.classList.add('stagger-children'));
+      $$('.product-card.revealed').forEach(el => el.classList.remove('revealed'));
+      $$('[class*="reveal"]').forEach(el => { if(!el.classList.contains('revealed')) revealObs.observe(el); });
+      $$('img:not(.loaded)').forEach(img => {
+        if(img.complete){ img.classList.add('loaded'); }
+        else { img.addEventListener('load', () => img.classList.add('loaded'), {once:true}); img.addEventListener('error', () => img.classList.add('loaded'), {once:true}); }
+      });
+    }, 100);
+  });
+});
+
+/* ---------- Hero Floating Particles ---------- */
+(function(){
+  const hero = document.querySelector('.hero');
+  if(!hero) return;
+  const container = document.createElement('div');
+  container.className = 'hero-particles';
+  for(let i = 0; i < 20; i++){
+    const span = document.createElement('span');
+    span.style.left = Math.random()*100 + '%';
+    span.style.animationDuration = (6 + Math.random()*8) + 's';
+    span.style.animationDelay = Math.random()*6 + 's';
+    span.style.width = span.style.height = (2 + Math.random()*3) + 'px';
+    container.appendChild(span);
+  }
+  hero.prepend(container);
+})();
+
 /* ---------- Login Modal ---------- */
 document.addEventListener('click', e => {
   const modal = document.getElementById('login-modal');
