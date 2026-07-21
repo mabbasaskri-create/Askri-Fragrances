@@ -836,9 +836,9 @@ footer{
 }
 .btn:active::after,.add-cart-btn:active::after,.checkout-btn:active::after{width:300px;height:300px}
 
-/* Smooth image load */
-.product-media img,.coll-card img,.pd-gallery .main-img img{opacity:0;transition:opacity .5s ease,transform .6s ease}
-.product-media img.loaded,.coll-card img.loaded,.pd-gallery .main-img img.loaded{opacity:1}
+/* Smooth image load - only animate opacity when JS explicitly adds .img-ready */
+.product-media img.img-ready,.coll-card img.img-ready,.pd-gallery .main-img img.img-ready{opacity:0;transition:opacity .5s ease}
+.product-media img.img-ready.loaded,.coll-card img.img-ready.loaded,.pd-gallery .main-img img.img-ready.loaded{opacity:1}
 
 /* Floating particles on hero */
 .hero-particles{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}

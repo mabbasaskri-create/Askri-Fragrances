@@ -913,22 +913,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   $$('[class*="reveal"]').forEach(el => revealObs.observe(el));
 
-  // Image fade-in on load
-  $$('img').forEach(img => {
-    if(img.complete){ img.classList.add('loaded'); }
-    else { img.addEventListener('load', () => img.classList.add('loaded'), {once:true}); img.addEventListener('error', () => img.classList.add('loaded'), {once:true}); }
-  });
-
   // Re-observe after dynamic content (products load)
   window.addEventListener('products-loaded', () => {
     setTimeout(() => {
       $$('.products-grid').forEach(el => el.classList.add('stagger-children'));
       $$('.product-card.revealed').forEach(el => el.classList.remove('revealed'));
       $$('[class*="reveal"]').forEach(el => { if(!el.classList.contains('revealed')) revealObs.observe(el); });
-      $$('img:not(.loaded)').forEach(img => {
-        if(img.complete){ img.classList.add('loaded'); }
-        else { img.addEventListener('load', () => img.classList.add('loaded'), {once:true}); img.addEventListener('error', () => img.classList.add('loaded'), {once:true}); }
-      });
     }, 100);
   });
 });
